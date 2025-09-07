@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
+
 * {
     margin: 0;
     padding: 0;
@@ -245,7 +247,6 @@ body {
 }
 
 /* Login Page New Styles */
-@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
 
 #login-page-body {
     background: linear-gradient(135deg, #a8b2e4 0%, #673ab7 100%);
