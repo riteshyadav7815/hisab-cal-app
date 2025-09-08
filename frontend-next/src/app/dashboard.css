@@ -88,6 +88,37 @@ body {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+/* Notifications Page Styles */
+.notifications-list {
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.notification-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-message {
+    font-weight: 500;
+}
+
+.notification-time {
+    font-size: 0.8rem;
+    color: #6c757d;
+    flex-shrink: 0;
+    margin-left: 20px;
+}
+
 .header {
     display: flex;
     justify-content: space-between;

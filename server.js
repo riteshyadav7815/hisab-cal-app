@@ -57,6 +57,15 @@ const createTables = async () => {
                 date TIMESTAMPTZ NOT NULL DEFAULT NOW()
             );
         `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS notifications (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                message TEXT NOT NULL,
+                is_read BOOLEAN NOT NULL DEFAULT FALSE,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );
+        `);
         console.log('Tables are successfully created or already exist.');
     } catch (err) {
         console.error('Error creating tables:', err.stack);
@@ -197,6 +206,23 @@ app.delete('/api/friends/:name', authenticateToken, async (req, res) => {
     }
 });
 
+// --- API ROUTES FOR NOTIFICATIONS ---
+
+app.get('/api/notifications', authenticateToken, async (req, res) => {
+    const sql = `
+        SELECT id, message, is_read, created_at
+        FROM notifications
+        WHERE user_id = $1
+        ORDER BY created_at DESC`;
+    try {
+        const { rows } = await pool.query(sql, [req.user.id]);
+        res.json(rows);
+    } catch (error) {
+        console.error('Get notifications error:', error);
+        res.status(500).json({ error: 'Failed to get notifications' });
+    }
+});
+
 // --- API ROUTES FOR TRANSACTIONS ---
 
 app.get('/api/transactions', authenticateToken, async (req, res) => {
@@ -221,21 +247,44 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
         return res.status(400).json({ error: 'Missing required transaction fields' });
     }
 
+    const client = await pool.connect();
     try {
+        await client.query('BEGIN');
+
         const getFriendIdSql = 'SELECT id FROM friends WHERE user_id = $1 AND name = $2';
-        const friendResult = await pool.query(getFriendIdSql, [req.user.id, friendName]);
+        const friendResult = await client.query(getFriendIdSql, [req.user.id, friendName]);
         const friend = friendResult.rows[0];
 
         if (!friend) {
-            return res.status(404).json({ error: 'Friend not found' });
+            throw new Error('Friend not found');
         }
 
-        const sql = 'INSERT INTO transactions (user_id, friend_id, type, amount, reason) VALUES ($1, $2, $3, $4, $5) RETURNING id';
-        const { rows } = await pool.query(sql, [req.user.id, friend.id, type, amount, reason]);
+        const transactionSql = 'INSERT INTO transactions (user_id, friend_id, type, amount, reason) VALUES ($1, $2, $3, $4, $5) RETURNING id';
+        const { rows } = await client.query(transactionSql, [req.user.id, friend.id, type, amount, reason]);
+
+        // Create a notification
+        let message = '';
+        if (type === 'expense') {
+            message = `New expense logged: You paid ${friendName} ₹${amount} for "${reason}".`;
+        } else if (type === 'income') {
+            message = `New income logged: ${friendName} paid you ₹${amount} for "${reason}".`;
+        } else {
+            message = `New settlement logged with ${friendName} of ₹${amount}.`;
+        }
+        const notificationSql = 'INSERT INTO notifications (user_id, message) VALUES ($1, $2)';
+        await client.query(notificationSql, [req.user.id, message]);
+
+        await client.query('COMMIT');
         res.status(201).json({ message: 'Transaction added successfully', transactionId: rows[0].id });
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error('Add transaction error:', error);
+        if (error.message === 'Friend not found') {
+            return res.status(404).json({ error: 'Friend not found' });
+        }
         res.status(500).json({ error: 'Failed to add transaction' });
+    } finally {
+        client.release();
     }
 });
 

@@ -2,6 +2,7 @@ import React from 'react';
 import HomeIcon from './icons/HomeIcon';
 import UsersIcon from './icons/UsersIcon';
 import FileTextIcon from './icons/FileTextIcon';
+import BellIcon from './icons/BellIcon';
 import LogOutIcon from './icons/LogOutIcon';
 
 const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
@@ -18,6 +19,10 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
         <a href="#" className="nav-item">
           <UsersIcon className="nav-icon" />
           <span>Friends</span>
+        </a>
+        <a href="/notifications" className="nav-item">
+          <BellIcon className="nav-icon" />
+          <span>Notifications</span>
         </a>
         <a href="#" className="nav-item">
           <FileTextIcon className="nav-icon" />
