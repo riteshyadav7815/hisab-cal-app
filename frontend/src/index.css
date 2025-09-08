@@ -249,7 +249,7 @@ body {
 /* Login Page New Styles */
 
 #login-page-body {
-    background: linear-gradient(135deg, #a8b2e4 0%, #673ab7 100%);
+    background: linear-gradient(to right, #89f7fe, #66a6ff);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -281,16 +281,21 @@ body {
 
 #login-page-body button {
     border-radius: 20px;
-    border: 1px solid #512da8;
-    background-color: #512da8;
+    border: 1px solid #66a6ff;
+    background-image: linear-gradient(to right, #89f7fe, #66a6ff, #89f7fe);
+    background-size: 200%;
     color: #FFFFFF;
     font-size: 12px;
     font-weight: bold;
     padding: 12px 45px;
     letter-spacing: 1px;
     text-transform: uppercase;
-    transition: transform 80ms ease-in;
+    transition: all 0.4s ease;
     cursor: pointer;
+}
+
+#login-page-body button:hover {
+    background-position: right;
 }
 
 #login-page-body button:active {
@@ -318,7 +323,7 @@ body {
 .logo-container svg {
     width: 32px;
     height: 32px;
-    stroke: #673ab7;
+    stroke: #66a6ff;
 }
 
 .logo-container h2 {
@@ -339,11 +344,18 @@ body {
 }
 
 #login-page-body .auth-form input {
-    background-color: #eee;
+    background-color: #f0f0f0;
     border: none;
+    border-bottom: 2px solid #ddd;
     padding: 12px 15px;
     margin: 8px 0;
     width: 100%;
+    transition: border-color 0.3s;
+}
+
+#login-page-body .auth-form input:focus {
+    outline: none;
+    border-bottom-color: #66a6ff;
 }
 
 #login-page-body .container {
@@ -419,9 +431,7 @@ body {
 }
 
 .overlay {
-    background: #673ab7;
-    background: -webkit-linear-gradient(to right, #512da8, #673ab7);
-    background: linear-gradient(to right, #512da8, #673ab7);
+    background: linear-gradient(to right, #66a6ff, #89f7fe);
     background-repeat: no-repeat;
     background-size: cover;
     background-position: 0 0;
