@@ -3,16 +3,11 @@
 # This file configures the deployment settings for Netlify
 
 [build]
-  # The command to build the site
-  command = "npm run build"
+  # Use the special build command that ignores lint errors
+  command = "npm run build:netlify"
   
-  # The directory to publish, which contains the built site
-  publish = "frontend-next/.next"
+  # The directory to publish, relative to the base directory
+  publish = ".next"
   
-  # The base directory, where the frontend code is located
+  # The base directory where the frontend code is located
   base = "frontend-next"
-
-# Set environment variables for the build
-[build.environment]
-  # This tells the build script to ignore ESLint errors and not fail the build.
-  CI = "false"
