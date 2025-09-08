@@ -169,8 +169,9 @@ const DashboardPage = () => {
                         <span>Welcome, User!</span>
                     </div>
                 </div>
-                <div className="dashboard-content">
-                <div className="summary-grid">
+                <div className="dashboard-body">
+                    <div className="dashboard-main">
+                        <div className="summary-grid">
                     <div className="summary-card current-balance">
                         <span className="summary-title">Current Balance</span>
                         <span className="summary-amount">₹{netBalance.toFixed(2)}</span>
@@ -195,36 +196,96 @@ const DashboardPage = () => {
                 </div>
 
                 <div className="main-grid">
-                    <div className="section">
-                        <h2>💸 Add Transaction</h2>
-                        <div className="form-group">
-                            <label htmlFor="type">Transaction Type</label>
-                            <select id="type" value={transactionData.type} onChange={handleTransactionChange}>
-                                <option value="expense">I paid for friend</option>
-                                <option value="income">Friend paid for me</option>
-                                <option value="settlement">Settlement</option>
-                            </select>
+                        <div className="section">
+                            <h2>💸 Add Transaction</h2>
+                            <div className="form-group">
+                                <label htmlFor="type">Transaction Type</label>
+                                <select id="type" value={transactionData.type} onChange={handleTransactionChange}>
+                                    <option value="expense">I paid for friend</option>
+                                    <option value="income">Friend paid for me</option>
+                                    <option value="settlement">Settlement</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="friend">Friend</label>
+                                <select id="friend" value={transactionData.friend} onChange={handleTransactionChange}>
+                                    <option value="">Select a friend</option>
+                                    {friends.map(f => <option key={f} value={f}>{f}</option>)}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="amount">Amount (₹)</label>
+                                <input type="number" id="amount" placeholder="0.00" step="0.01" value={transactionData.amount} onChange={handleTransactionChange} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="reason">Reason/Description</label>
+                                <textarea id="reason" rows={3} placeholder="What was this transaction for?" value={transactionData.reason} onChange={handleTransactionChange}></textarea>
+                            </div>
+                            <button className="btn" onClick={addTransaction} disabled={isSubmitting}>
+                                {isSubmitting ? 'Adding...' : 'Add Transaction'}
+                            </button>
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="friend">Friend</label>
-                            <select id="friend" value={transactionData.friend} onChange={handleTransactionChange}>
-                                <option value="">Select a friend</option>
-                                {friends.map(f => <option key={f} value={f}>{f}</option>)}
-                            </select>
+                        <div className="section">
+                             <h2>👥 Manage Friends</h2>
+                            <div className="form-group">
+                                <label htmlFor="friendName">Friend's Name</label>
+                                <input type="text" id="friendName" placeholder="Enter friend's name" value={friendName} onChange={(e) => setFriendName(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && addFriend()} disabled={isSubmitting} />
+                            </div>
+                            <button className="btn" onClick={addFriend} disabled={isSubmitting}>
+                                {isSubmitting ? 'Adding...' : 'Add Friend'}
+                            </button>
+                            <div className="friends-list">
+                                {friends.length > 0 ? friends.map(f => (
+                                    <div key={f} className="friend-tag">
+                                        {f}
+                                        <button className="remove-friend" onClick={() => removeFriend(f)} title="Remove friend">×</button>
+                                    </div>
+                                )) : <p style={{ color: '#999', textAlign: 'center', marginTop: '20px' }}>No friends added yet</p>}
+                            </div>
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="amount">Amount (₹)</label>
-                            <input type="number" id="amount" placeholder="0.00" step="0.01" value={transactionData.amount} onChange={handleTransactionChange} />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="reason">Reason/Description</label>
-                            <textarea id="reason" rows={3} placeholder="What was this transaction for?" value={transactionData.reason} onChange={handleTransactionChange}></textarea>
-                        </div>
-                        <button className="btn" onClick={addTransaction} disabled={isSubmitting}>
-                        {isSubmitting ? 'Adding...' : 'Add Transaction'}
-                    </button>
-                    </div>
+                        <div className="section">
+                            <h2>⚖️ Balance Summary</h2>
+                            <div id="balanceSummary" className="transaction-list">
+                                {friends.length > 0 ? Object.entries(balances).map(([friend, balance]) => {
+                                    let balanceText, balanceClass, barClass;
+                                    if (balance > 0) {
+                                        balanceText = `Owes you ₹${balance.toFixed(2)}`;
+                                        balanceClass = 'amount-positive';
+                                        barClass = 'balance-bar-positive';
+                                    } else if (balance < 0) {
+                                        balanceText = `You owe ₹${Math.abs(balance).toFixed(2)}`;
+                                        balanceClass = 'amount-negative';
+                                        barClass = 'balance-bar-negative';
+                                    } else {
+                                        balanceText = `Settled up`;
+                                        balanceClass = 'amount-neutral';
+                                        barClass = 'balance-bar-neutral';
+                                    }
+                                    const maxAbsBalance = Math.max(...Object.values(balances).map(b => Math.abs(b)), 100);
+                                    const barWidth = `${(Math.abs(balance) / maxAbsBalance) * 100}%`;
 
+                                    return (
+                                        <div key={friend} className="balance-item">
+                                            <div className="balance-info">
+                                                <strong>{friend}</strong>
+                                                <span className={balanceClass}>{balanceText}</span>
+                                            </div>
+                                            <div className="balance-bar-container">
+                                                <div className={`balance-bar ${barClass}`} style={{ width: barWidth }}></div>
+                                            </div>
+                                        </div>
+                                    );
+                                }) : (
+                                    <div className="empty-state">
+                                        <div>💰</div>
+                                        <p>Add friends and transactions to see balance summary</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="dashboard-side">
                     <div className="section expense-history">
                         <div className="section-header">
                             <h2>Expense History</h2>

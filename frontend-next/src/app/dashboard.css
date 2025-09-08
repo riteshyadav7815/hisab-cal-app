@@ -137,8 +137,19 @@ body {
     overflow: hidden;
 }
 
-.dashboard-content {
-    padding: 30px;
+.dashboard-body {
+    display: flex;
+    gap: 30px;
+    flex-grow: 1;
+}
+
+.dashboard-main {
+    flex-grow: 1;
+}
+
+.dashboard-side {
+    width: 350px;
+    flex-shrink: 0;
 }
 
 .main-grid {
