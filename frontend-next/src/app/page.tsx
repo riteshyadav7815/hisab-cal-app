@@ -13,6 +13,7 @@ const DashboardPage = () => {
     const [transactions, setTransactions] = useState<any[]>([]);
     const [friendName, setFriendName] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [activeFilter, setActiveFilter] = useState('all');
     const [transactionData, setTransactionData] = useState({
         type: 'expense',
         friend: '',
@@ -144,6 +145,13 @@ const DashboardPage = () => {
         return { totalOwed, totalOwing, netBalance: totalOwing - totalOwed };
     }, [balances]);
 
+    const filteredTransactions = useMemo(() => {
+        if (activeFilter === 'all') {
+            return transactions;
+        }
+        return transactions.filter(t => t.type === activeFilter);
+    }, [transactions, activeFilter]);
+
     if (isLoading) {
         return <div>Loading...</div>; // Or a proper spinner component
     }
@@ -217,28 +225,30 @@ const DashboardPage = () => {
                     </button>
                     </div>
 
-                    <div className="section">
-                        <h2>📋 Recent Transactions</h2>
+                    <div className="section expense-history">
+                        <div className="section-header">
+                            <h2>Expense History</h2>
+                            <div className="filter-tabs">
+                                <button className={activeFilter === 'all' ? 'active' : ''} onClick={() => setActiveFilter('all')}>All</button>
+                                <button className={activeFilter === 'income' ? 'active' : ''} onClick={() => setActiveFilter('income')}>Income</button>
+                                <button className={activeFilter === 'expense' ? 'active' : ''} onClick={() => setActiveFilter('expense')}>Expenses</button>
+                            </div>
+                        </div>
                         <div className="transaction-list">
-                            {transactions.length > 0 ? transactions.slice(0, 10).map(t => {
-                                let amountClass = t.type === 'expense' ? 'amount-negative' : 'amount-positive';
-                                let prefix = t.type === 'expense' ? 'You paid ' : t.type === 'income' ? 'You received ' : 'Settlement ';
-                                return (
-                                    <div key={t.id} className="transaction-item">
-                                        <div className="transaction-header">
-                                            <strong>{t.friend}</strong>
-                                            <span className={`transaction-amount ${amountClass}`}>{`${prefix}₹${t.amount.toFixed(2)}`}</span>
-                                        </div>
-                                        <div className="transaction-details">
-                                            <div>{t.reason}</div>
-                                            <small>{new Date(t.date).toLocaleString()}</small>
-                                        </div>
+                            {filteredTransactions.length > 0 ? filteredTransactions.map(t => (
+                                <div key={t.id} className="transaction-item">
+                                    <div className="transaction-icon">{t.reason.charAt(0).toUpperCase()}</div>
+                                    <div className="transaction-info">
+                                        <span className="transaction-reason">{t.reason}</span>
+                                        <span className="transaction-friend">{t.friend}</span>
                                     </div>
-                                );
-                            }) : (
+                                    <span className={`transaction-amount ${t.type === 'expense' ? 'amount-negative' : 'amount-positive'}`}>
+                                        {t.type === 'expense' ? '-' : '+'}{`₹${t.amount.toFixed(2)}`}
+                                    </span>
+                                </div>
+                            )) : (
                                 <div className="empty-state">
-                                    <div>📝</div>
-                                    <p>No transactions yet. Add your first transaction above!</p>
+                                    <p>No transactions for this filter.</p>
                                 </div>
                             )}
                         </div>
