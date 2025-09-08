@@ -248,24 +248,34 @@ const DashboardPage = () => {
 
                     <div className="section">
                         <h2>⚖️ Balance Summary</h2>
-                        <div id="balanceSummary">
+                        <div id="balanceSummary" className="transaction-list">
                             {friends.length > 0 ? Object.entries(balances).map(([friend, balance]) => {
-                                let balanceText, balanceClass;
+                                let balanceText, balanceClass, barClass;
                                 if (balance > 0) {
-                                    balanceText = `${friend} owes you ₹${balance.toFixed(2)}`;
+                                    balanceText = `Owes you ₹${balance.toFixed(2)}`;
                                     balanceClass = 'amount-positive';
+                                    barClass = 'balance-bar-positive';
                                 } else if (balance < 0) {
-                                    balanceText = `You owe ${friend} ₹${Math.abs(balance).toFixed(2)}`;
+                                    balanceText = `You owe ₹${Math.abs(balance).toFixed(2)}`;
                                     balanceClass = 'amount-negative';
+                                    barClass = 'balance-bar-negative';
                                 } else {
-                                    balanceText = `Settled with ${friend}`;
-                                    balanceClass = '';
+                                    balanceText = `Settled up`;
+                                    balanceClass = 'amount-neutral';
+                                    barClass = 'balance-bar-neutral';
                                 }
+                                // Simple visualization: bar width based on a fixed scale or relative to max balance
+                                const maxAbsBalance = Math.max(...Object.values(balances).map(b => Math.abs(b)), 100);
+                                const barWidth = `${(Math.abs(balance) / maxAbsBalance) * 100}%`;
+
                                 return (
-                                    <div key={friend} className="transaction-item">
-                                        <div className="transaction-header">
+                                    <div key={friend} className="balance-item">
+                                        <div className="balance-info">
                                             <strong>{friend}</strong>
-                                            <span className={`transaction-amount ${balanceClass}`}>{balanceText}</span>
+                                            <span className={balanceClass}>{balanceText}</span>
+                                        </div>
+                                        <div className="balance-bar-container">
+                                            <div className={`balance-bar ${barClass}`} style={{ width: barWidth }}></div>
                                         </div>
                                     </div>
                                 );

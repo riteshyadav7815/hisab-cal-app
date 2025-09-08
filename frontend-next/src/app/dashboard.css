@@ -146,6 +146,52 @@ body {
     color: #dc3545;
 }
 
+.amount-neutral {
+    color: #6c757d;
+}
+
+/* New styles for balance visualization */
+.balance-item {
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.balance-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.balance-bar-container {
+    background-color: #e9ecef;
+    border-radius: 5px;
+    height: 10px;
+    overflow: hidden;
+}
+
+.balance-bar {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease-in-out;
+}
+
+.balance-bar-positive {
+    background-color: #28a745;
+}
+
+.balance-bar-negative {
+    background-color: #dc3545;
+}
+
+.balance-bar-neutral {
+    background-color: #6c757d;
+}
+
 .transaction-details {
     color: #666;
     font-size: 0.9rem;
