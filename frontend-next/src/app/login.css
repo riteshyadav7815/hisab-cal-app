@@ -1,5 +1,5 @@
 #login-page-body {
-    background: linear-gradient(to right, #89f7fe, #66a6ff);
+    background: linear-gradient(to right, #e9d5ff, #c084fc);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -31,8 +31,8 @@
 
 #login-page-body button {
     border-radius: 20px;
-    border: 1px solid #66a6ff;
-    background-image: linear-gradient(to right, #89f7fe, #66a6ff, #89f7fe);
+    border: 1px solid #7e22ce;
+    background-image: linear-gradient(to right, #a855f7, #7e22ce, #a855f7);
     background-size: 200%;
     color: #FFFFFF;
     font-size: 12px;
@@ -73,7 +73,7 @@
 .logo-container svg {
     width: 32px;
     height: 32px;
-    stroke: #66a6ff;
+    stroke: #7e22ce;
 }
 
 .logo-container h2 {
@@ -105,7 +105,7 @@
 
 #login-page-body .auth-form input:focus {
     outline: none;
-    border-bottom-color: #66a6ff;
+    border-bottom-color: #7e22ce;
 }
 
 #login-page-body .container {
@@ -181,7 +181,7 @@
 }
 
 .overlay {
-    background: linear-gradient(to right, #66a6ff, #89f7fe);
+    background: linear-gradient(to right, #7e22ce, #a855f7);
     background-repeat: no-repeat;
     background-size: cover;
     background-position: 0 0;
