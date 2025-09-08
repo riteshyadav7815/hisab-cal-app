@@ -32,11 +32,15 @@ body {
     opacity: 0.9;
 }
 
-.main-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
+.dashboard-content {
     padding: 30px;
+}
+
+.main-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
 }
 
 .section {
@@ -148,7 +152,6 @@ body {
 }
 
 .balance-summary {
-    grid-column: 1 / -1;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border-radius: 15px;
@@ -211,9 +214,12 @@ body {
 }
 
 @media (max-width: 768px) {
-    .main-content {
+    .main-grid {
         grid-template-columns: 1fr;
         gap: 20px;
+    }
+
+    .dashboard-content {
         padding: 20px;
     }
 
