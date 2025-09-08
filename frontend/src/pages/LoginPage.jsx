@@ -7,26 +7,37 @@ const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async () => {
+        setError('');
+        setSuccess('');
+        setLoading(true);
         try {
             const response = await api.post('/login', { username, password });
             localStorage.setItem('hisab_token', response.data.token);
             navigate('/');
         } catch (err) {
             setError(err.response?.data?.error || 'Login failed');
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleRegister = async () => {
+        setError('');
+        setSuccess('');
+        setLoading(true);
         try {
             await api.post('/register', { username, password });
-            alert('Registration successful! Please sign in.');
-            setIsSignUp(false);
-            setError('');
+            setSuccess('Registration successful! Please sign in.');
+            setIsSignUp(false); // Switch to sign-in form
         } catch (err) {
             setError(err.response?.data?.error || 'Registration failed');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -41,9 +52,12 @@ const LoginPage = () => {
                         </div>
                         <h1>Create Account</h1>
                         {error && isSignUp && <div className="error-message">{error}</div>}
+                        {success && isSignUp && <div className="success-message">{success}</div>}
                         <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
                         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                        <button onClick={handleRegister}>Sign Up</button>
+                        <button onClick={handleRegister} disabled={loading}>
+                            {loading ? 'Loading...' : 'Sign Up'}
+                        </button>
                     </div>
                 </div>
                 <div className="form-container sign-in-container">
@@ -54,10 +68,13 @@ const LoginPage = () => {
                         </div>
                         <h1>Sign In</h1>
                         {error && !isSignUp && <div className="error-message">{error}</div>}
+                        {success && !isSignUp && <div className="success-message">{success}</div>}
                         <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
                         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
                         <a href="#">Forgot your password?</a>
-                        <button onClick={handleLogin}>Sign In</button>
+                        <button onClick={handleLogin} disabled={loading}>
+                            {loading ? 'Loading...' : 'Sign In'}
+                        </button>
                     </div>
                 </div>
                 <div className="overlay-container">

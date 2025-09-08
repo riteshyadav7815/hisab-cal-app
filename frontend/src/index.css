@@ -484,6 +484,19 @@ body {
     color: #dc3545;
     margin-bottom: 15px;
     font-size: 12px;
-    display: block; /* Make it visible by default */
-    min-height: 15px; /* Reserve space */
+    display: block; 
+    min-height: 15px; 
+}
+
+#login-page-body .success-message {
+    color: #28a745;
+    margin-bottom: 15px;
+    font-size: 12px;
+    display: block;
+    min-height: 15px;
+}
+
+#login-page-body button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }
