@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import api from '@/lib/api';
 import './dashboard.css';
 
@@ -57,32 +58,40 @@ const DashboardPage = () => {
 
     const addFriend = async () => {
         if (!friendName.trim()) {
-            alert("Please enter a friend's name");
+            toast.error("Please enter a friend's name");
             return;
         }
-        try {
-            await api.post('/friends', { name: friendName });
-            setFriends([...friends, friendName]);
-            setFriendName('');
-        } catch (error: any) {
-            alert(error.response?.data?.error || 'Failed to add friend');
-        }
+        const promise = api.post('/friends', { name: friendName });
+        toast.promise(promise, {
+            loading: 'Adding friend...',
+            success: () => {
+                setFriends([...friends, friendName]);
+                setFriendName('');
+                return 'Friend added successfully!';
+            },
+            error: (err) => err.response?.data?.error || 'Failed to add friend',
+        });
     };
 
     const removeFriend = async (name: string) => {
-        if (window.confirm(`Are you sure you want to remove ${name}? This will also remove all transactions with this friend.`)) {
-            try {
-                await api.delete(`/friends/${name}`);
-                const [friendsRes, transactionsRes] = await Promise.all([
-                    api.get('/friends'),
-                    api.get('/transactions'),
-                ]);
+        const promise = api.delete(`/friends/${name}`).then(() => {
+            // Refetch data after successful deletion
+            return Promise.all([
+                api.get('/friends'),
+                api.get('/transactions'),
+            ]);
+        });
+
+        toast.promise(promise, {
+            loading: 'Removing friend...',
+            success: (res) => {
+                const [friendsRes, transactionsRes] = res;
                 setFriends(friendsRes.data);
                 setTransactions(transactionsRes.data);
-            } catch (error: any) {
-                alert(error.response?.data?.error || 'Failed to remove friend');
-            }
-        }
+                return 'Friend removed successfully!';
+            },
+            error: (err) => err.response?.data?.error || 'Failed to remove friend',
+        });
     };
 
     const handleTransactionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -92,18 +101,22 @@ const DashboardPage = () => {
 
     const addTransaction = async () => {
         const { friend, amount, reason } = transactionData;
-        if (!friend) return alert('Please select a friend');
-        if (isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) return alert('Please enter a valid amount');
-        if (!reason.trim()) return alert('Please enter a reason');
+        if (!friend) return toast.error('Please select a friend');
+        if (isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) return toast.error('Please enter a valid amount');
+        if (!reason.trim()) return toast.error('Please enter a reason');
 
-        try {
-            await api.post('/transactions', { ...transactionData, amount: parseFloat(amount) });
-            const transactionsRes = await api.get('/transactions');
-            setTransactions(transactionsRes.data);
-            setTransactionData({ type: 'expense', friend: '', amount: '', reason: '' });
-        } catch (error: any) {
-            alert(error.response?.data?.error || 'Failed to add transaction');
-        }
+        const promise = api.post('/transactions', { ...transactionData, amount: parseFloat(amount) });
+
+        toast.promise(promise, {
+            loading: 'Adding transaction...',
+            success: () => {
+                // Refetch transactions to update the list
+                api.get('/transactions').then(res => setTransactions(res.data));
+                setTransactionData({ type: 'expense', friend: '', amount: '', reason: '' });
+                return 'Transaction added successfully!';
+            },
+            error: (err) => err.response?.data?.error || 'Failed to add transaction',
+        });
     };
 
     const balances = useMemo(() => {
