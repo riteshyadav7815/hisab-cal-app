@@ -10,6 +10,7 @@ const DashboardPage = () => {
     const [friends, setFriends] = useState<string[]>([]);
     const [transactions, setTransactions] = useState<any[]>([]);
     const [friendName, setFriendName] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [transactionData, setTransactionData] = useState({
         type: 'expense',
         friend: '',
@@ -61,16 +62,17 @@ const DashboardPage = () => {
             toast.error("Please enter a friend's name");
             return;
         }
-        const promise = api.post('/friends', { name: friendName });
-        toast.promise(promise, {
-            loading: 'Adding friend...',
-            success: () => {
-                setFriends([...friends, friendName]);
-                setFriendName('');
-                return 'Friend added successfully!';
-            },
-            error: (err) => err.response?.data?.error || 'Failed to add friend',
-        });
+        setIsSubmitting(true);
+        try {
+            await api.post('/friends', { name: friendName });
+            setFriends([...friends, friendName]);
+            setFriendName('');
+            toast.success('Friend added successfully!');
+        } catch (error: any) {
+            toast.error(error.response?.data?.error || 'Failed to add friend');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const removeFriend = async (name: string) => {
@@ -105,18 +107,18 @@ const DashboardPage = () => {
         if (isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) return toast.error('Please enter a valid amount');
         if (!reason.trim()) return toast.error('Please enter a reason');
 
-        const promise = api.post('/transactions', { ...transactionData, amount: parseFloat(amount) });
-
-        toast.promise(promise, {
-            loading: 'Adding transaction...',
-            success: () => {
-                // Refetch transactions to update the list
-                api.get('/transactions').then(res => setTransactions(res.data));
-                setTransactionData({ type: 'expense', friend: '', amount: '', reason: '' });
-                return 'Transaction added successfully!';
-            },
-            error: (err) => err.response?.data?.error || 'Failed to add transaction',
-        });
+        setIsSubmitting(true);
+        try {
+            await api.post('/transactions', { ...transactionData, amount: parseFloat(amount) });
+            const transactionsRes = await api.get('/transactions');
+            setTransactions(transactionsRes.data);
+            setTransactionData({ type: 'expense', friend: '', amount: '', reason: '' });
+            toast.success('Transaction added successfully!');
+        } catch (error: any) {
+            toast.error(error.response?.data?.error || 'Failed to add transaction');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const balances = useMemo(() => {
@@ -199,7 +201,9 @@ const DashboardPage = () => {
                             <label htmlFor="reason">Reason/Description</label>
                             <textarea id="reason" rows={3} placeholder="What was this transaction for?" value={transactionData.reason} onChange={handleTransactionChange}></textarea>
                         </div>
-                        <button className="btn" onClick={addTransaction}>Add Transaction</button>
+                        <button className="btn" onClick={addTransaction} disabled={isSubmitting}>
+                        {isSubmitting ? 'Adding...' : 'Add Transaction'}
+                    </button>
                     </div>
 
                     <div className="section">
@@ -226,23 +230,6 @@ const DashboardPage = () => {
                                     <p>No transactions yet. Add your first transaction above!</p>
                                 </div>
                             )}
-                        </div>
-                    </div>
-
-                    <div className="section">
-                        <h2>👥 Manage Friends</h2>
-                        <div className="form-group">
-                            <label htmlFor="friendName">Friend's Name</label>
-                            <input type="text" id="friendName" placeholder="Enter friend's name" value={friendName} onChange={(e) => setFriendName(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && addFriend()} />
-                        </div>
-                        <button className="btn" onClick={addFriend}>Add Friend</button>
-                        <div className="friends-list">
-                            {friends.length > 0 ? friends.map(f => (
-                                <div key={f} className="friend-tag">
-                                    {f}
-                                    <button className="remove-friend" onClick={() => removeFriend(f)} title="Remove friend">×</button>
-                                </div>
-                            )) : <p style={{ color: '#999', textAlign: 'center', marginTop: '20px' }}>No friends added yet</p>}
                         </div>
                     </div>
 
