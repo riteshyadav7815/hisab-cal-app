@@ -4,6 +4,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import api from '@/lib/api';
+import Sidebar from '@/components/Sidebar';
+import SearchIcon from '@/components/icons/SearchIcon';
 import './dashboard.css';
 
 const DashboardPage = () => {
@@ -147,29 +149,38 @@ const DashboardPage = () => {
     }
 
     return (
-        <div className="container">
-            <div className="header" style={{ position: 'relative' }}>
-                <h1>💰 Hisab Calculator</h1>
-                <p>Track expenses and settlements between friends</p>
-                <button className="btn" onClick={logout} style={{ position: 'absolute', top: '20px', right: '20px', width: 'auto' }}>Logout</button>
-            </div>
-
-            <div className="dashboard-content">
-                <div className="balance-summary">
-                    <h2>📊 Overall Summary</h2>
-                    <div className="balance-grid">
-                        <div className="balance-card">
-                            <h3>Total You Owe</h3>
-                            <div className="balance-amount">₹{totalOwed.toFixed(2)}</div>
-                        </div>
-                        <div className="balance-card">
-                            <h3>Total Owed to You</h3>
-                            <div className="balance-amount">₹{totalOwing.toFixed(2)}</div>
-                        </div>
-                        <div className="balance-card">
-                            <h3>{netBalance > 0 ? "Net: You'll Receive" : netBalance < 0 ? "Net: You'll Pay" : 'Net: All Settled'}</h3>
-                            <div className="balance-amount" style={{ color: netBalance > 0 ? '#28a745' : netBalance < 0 ? '#dc3545' : 'white' }}>
-                                ₹{Math.abs(netBalance).toFixed(2)}
+        <div className="dashboard-layout">
+            <Sidebar onLogout={logout} />
+            <main className="main-content">
+                <div className="header">
+                    <div className="search-bar">
+                        <SearchIcon className="search-icon" />
+                        <input type="text" placeholder="Search expenses, reports, and friends" />
+                    </div>
+                    <div className="user-profile">
+                        <span>Welcome, User!</span>
+                    </div>
+                </div>
+                <div className="dashboard-content">
+                <div className="summary-grid">
+                    <div className="summary-card current-balance">
+                        <span className="summary-title">Current Balance</span>
+                        <span className="summary-amount">₹{netBalance.toFixed(2)}</span>
+                    </div>
+                    <div className="summary-card weekly-overview">
+                        <h3 className="summary-title">This Week</h3>
+                        <div className="weekly-stats">
+                            <div className="stat-item">
+                                <span>Total Transactions</span>
+                                <span>{transactions.length}</span>
+                            </div>
+                            <div className="stat-item">
+                                <span>Income</span>
+                                <span className="amount-positive">₹{totalOwing.toFixed(2)}</span>
+                            </div>
+                            <div className="stat-item">
+                                <span>Expenses</span>
+                                <span className="amount-negative">₹{totalOwed.toFixed(2)}</span>
                             </div>
                         </div>
                     </div>
@@ -275,7 +286,8 @@ const DashboardPage = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+                </div>
+            </main>
         </div>
     );
 };
