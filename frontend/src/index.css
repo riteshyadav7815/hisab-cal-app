@@ -306,6 +306,27 @@ body {
     border-color: #FFFFFF;
 }
 
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.logo-container svg {
+    width: 32px;
+    height: 32px;
+    stroke: #673ab7;
+}
+
+.logo-container h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+}
+
 #login-page-body .auth-form {
     background-color: #FFFFFF;
     display: flex;
