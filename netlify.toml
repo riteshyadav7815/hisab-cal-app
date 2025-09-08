@@ -11,3 +11,7 @@
   
   # The base directory where the frontend code is located
   base = "frontend-next"
+
+# This is the essential plugin for running Next.js on Netlify
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
