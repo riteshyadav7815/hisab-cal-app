@@ -13,3 +13,130 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// NextAuth.js Models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Hisab Calculator Models
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  username      String?   @unique
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  expenses      Expense[]
+  transactions  Transaction[]
+  friendships   Friendship[] @relation("UserFriendships")
+  friendOf      Friendship[] @relation("FriendFriendships")
+}
+
+model Friend {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  friendships   Friendship[] @relation("FriendFriendships")
+  transactions  Transaction[]
+}
+
+model Friendship {
+  id        String   @id @default(cuid())
+  userId    String
+  friendId  String
+  balance   Float    @default(0) // Positive: friend owes user, Negative: user owes friend
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user       User   @relation("UserFriendships", fields: [userId], references: [id], onDelete: Cascade)
+  friend     Friend @relation("FriendFriendships", fields: [friendId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@unique([userId, friendId])
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  amount      Float
+  category    String
+  description String?
+  photo       String?
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  friendId    String
+  friendshipId String
+  amount      Float
+  type        TransactionType // GAVE, TOOK, SETTLED
+  description String?
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  friend      Friend     @relation(fields: [friendId], references: [id], onDelete: Cascade)
+  friendship  Friendship @relation(fields: [friendshipId], references: [id], onDelete: Cascade)
+}
+
+enum TransactionType {
+  GAVE
+  TOOK
+  SETTLED
+}
