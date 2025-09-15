@@ -1,9 +1,11 @@
-import { auth } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import ExpensesContent from "@/components/ExpensesContent";
 
 export default async function Expenses() {
-  const session = await auth();
+  // Get user session
+  const session = await getServerSession(authOptions);
   
   if (!session) {
     redirect("/");

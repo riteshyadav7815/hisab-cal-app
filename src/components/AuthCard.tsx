@@ -2,8 +2,11 @@
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { signIn } from "next-auth/react";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function AuthCard() {
+  const router = useRouter();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [isPending, startTransition] = useTransition();
   const [username, setUsername] = useState("");
@@ -34,6 +37,17 @@ export default function AuthCard() {
 
   return (
     <div className="relative flex items-center justify-center min-h-screen p-4">
+      {/* Back to Home Button */}
+      <motion.button
+        onClick={() => router.push('/')}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="absolute top-6 left-6 flex items-center space-x-2 text-gray-300 hover:text-white transition-colors duration-200 z-10"
+      >
+        <ArrowLeft className="w-5 h-5" />
+        <span className="text-sm font-medium">Back to Home</span>
+      </motion.button>
+      
       <AnimatePresence mode="wait">
         <motion.div
           key={mode}

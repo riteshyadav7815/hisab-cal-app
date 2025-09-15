@@ -7,14 +7,21 @@ const actions = [
     description: "Add a new friend to track",
     icon: "👥",
     color: "from-blue-500 to-cyan-500",
-    href: "/management",
+    href: "/friends",
   },
   {
     title: "Add Expense",
     description: "Record a new expense",
     icon: "💰",
     color: "from-green-500 to-emerald-500",
-    href: "/expenses",
+    href: "/add-expense",
+  },
+  {
+    title: "Money Transfer",
+    description: "Give or receive money",
+    icon: "💸",
+    color: "from-purple-500 to-pink-500",
+    href: "/transfer",
   },
   {
     title: "Reports",
@@ -22,13 +29,6 @@ const actions = [
     icon: "📊",
     color: "from-orange-500 to-red-500",
     href: "/reports",
-  },
-  {
-    title: "Management",
-    description: "Manage friends & balances",
-    icon: "⚖️",
-    color: "from-purple-500 to-pink-500",
-    href: "/management",
   },
 ];
 
@@ -50,6 +50,7 @@ export default function QuickActions() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
             className="w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 text-left group"
+            onClick={() => window.location.href = action.href}
           >
             <div className="flex items-center space-x-4">
               <div className={`p-3 rounded-xl bg-gradient-to-r ${action.color}`}>

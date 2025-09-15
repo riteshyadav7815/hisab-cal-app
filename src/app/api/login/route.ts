@@ -40,7 +40,7 @@ export async function POST(request: Request) {
         username: user.username 
       } 
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }

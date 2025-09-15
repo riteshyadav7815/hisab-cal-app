@@ -3,14 +3,11 @@
 # This file configures the deployment settings for Netlify
 
 [build]
-  # Use the special build command that ignores lint errors
-  command = "npm run build:netlify"
+  # The command to build the site
+  command = "npm run build"
   
-  # The directory to publish, relative to the base directory
+  # The directory to publish
   publish = ".next"
-  
-  # The base directory where the frontend code is located
-  base = "frontend-next"
 
 # This is the essential plugin for running Next.js on Netlify
 [[plugins]]

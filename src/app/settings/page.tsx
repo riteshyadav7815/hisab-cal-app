@@ -1,9 +1,10 @@
-import { auth } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import SettingsContent from "@/components/SettingsContent";
 
 export default async function Settings() {
-  const session = await auth();
+  const session = await getServerSession(authOptions);
   
   if (!session) {
     redirect("/");

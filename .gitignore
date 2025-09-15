@@ -4,3 +4,10 @@ hisab.db
 
 # Local Netlify folder
 .netlify
+.next/
+.env.local
+.env.production
+prisma/dev.db
+prisma/dev.db-journal
+node_modules/
+*.log

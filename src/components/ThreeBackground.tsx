@@ -1,138 +1,92 @@
 "use client";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Float } from "@react-three/drei";
-import { useMemo, useRef } from "react";
-import * as THREE from "three";
-
-function AnimatedSphere() {
-  const meshRef = useRef<THREE.Mesh>(null);
-  
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.5) * 0.3;
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.2;
-      // Removed the bobbing animation (position.y)
-    }
-  });
-
-  return (
-    <Float speed={0} rotationIntensity={0} floatIntensity={0}>
-      <mesh ref={meshRef} scale={2.6}>
-        <icosahedronGeometry args={[1, 2]} />
-        <meshStandardMaterial 
-          color="#00f5d4" 
-          metalness={0.6} 
-          roughness={0.1}
-          emissive="#7b2ff7"
-          emissiveIntensity={0.2}
-        />
-      </mesh>
-    </Float>
-  );
-}
-
-function FloatingParticles({ count = 5000 }) {
-  const points = useRef<THREE.Points>(null);
-  
-  const particles = useMemo(() => {
-    const positions = new Float32Array(count * 3);
-    const colors = new Float32Array(count * 3);
-    
-    for (let i = 0; i < count; i++) {
-      const i3 = i * 3;
-      positions[i3] = (Math.random() - 0.5) * 20;
-      positions[i3 + 1] = (Math.random() - 0.5) * 20;
-      positions[i3 + 2] = (Math.random() - 0.5) * 20;
-      
-      // Color variation
-      const color = new THREE.Color();
-      color.setHSL(0.7 + Math.random() * 0.3, 0.8, 0.6);
-      colors[i3] = color.r;
-      colors[i3 + 1] = color.g;
-      colors[i3 + 2] = color.b;
-    }
-    
-    return { positions, colors };
-  }, [count]);
-
-  useFrame((state) => {
-    if (points.current) {
-      points.current.rotation.x = state.clock.elapsedTime * 0.1;
-      points.current.rotation.y = state.clock.elapsedTime * 0.05;
-    }
-  });
-
-  return (
-    <points ref={points}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={particles.positions.length / 3}
-          array={particles.positions}
-          itemSize={3}
-        />
-        <bufferAttribute
-          attach="attributes-color"
-          count={particles.colors.length / 3}
-          array={particles.colors}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial 
-        size={0.03} 
-        transparent 
-        opacity={0.6}
-        vertexColors
-        sizeAttenuation
-      />
-    </points>
-  );
-}
-
-function WavePlane() {
-  const meshRef = useRef<THREE.Mesh>(null);
-  
-  useFrame((state) => {
-    if (meshRef.current) {
-      const positions = meshRef.current.geometry.attributes.position.array as Float32Array;
-      for (let i = 0; i < positions.length; i += 3) {
-        positions[i + 2] = Math.sin(positions[i] * 0.1 + state.clock.elapsedTime) * 0.5;
-      }
-      meshRef.current.geometry.attributes.position.needsUpdate = true;
-    }
-  });
-
-  return (
-    <mesh ref={meshRef} position={[0, -3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[20, 20, 32, 32]} />
-      <meshStandardMaterial 
-        color="#7b2ff7" 
-        transparent 
-        opacity={0.1}
-        wireframe
-      />
-    </mesh>
-  );
-}
+import { useEffect, useRef } from "react";
 
 export default function ThreeBackground() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Simple animated background without Three.js for now
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationId: number;
+    let time = 0;
+
+    const animate = () => {
+      time += 0.01;
+      
+      // Clear canvas
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Create gradient background
+      const gradient = ctx.createRadialGradient(
+        canvas.width / 2, canvas.height / 2, 0,
+        canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height) / 2
+      );
+      gradient.addColorStop(0, 'rgba(123, 47, 247, 0.1)');
+      gradient.addColorStop(0.5, 'rgba(0, 245, 212, 0.05)');
+      gradient.addColorStop(1, 'rgba(10, 10, 10, 0.8)');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw floating particles
+      ctx.fillStyle = 'rgba(0, 245, 212, 0.6)';
+      for (let i = 0; i < 100; i++) {
+        const x = (Math.sin(time + i * 0.1) * 0.5 + 0.5) * canvas.width;
+        const y = (Math.cos(time * 0.7 + i * 0.1) * 0.5 + 0.5) * canvas.height;
+        const size = Math.sin(time * 2 + i) * 2 + 3;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
+      // Draw wave effect
+      ctx.strokeStyle = 'rgba(123, 47, 247, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      
+      for (let x = 0; x < canvas.width; x += 4) {
+        const y = canvas.height / 2 + Math.sin(x * 0.01 + time) * 50;
+        if (x === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.stroke();
+      
+      animationId = requestAnimationFrame(animate);
+    };
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationId);
+    };
+  }, []);
+
   return (
     <div className="absolute inset-0 -z-10">
-      <Canvas camera={{ position: [0, 0, 8], fov: 60 }}>
-        <color attach="background" args={["#0a0a0a"]} />
-        <ambientLight intensity={0.3} />
-        <directionalLight position={[5, 5, 5]} intensity={1} />
-        <pointLight position={[-5, -5, 5]} color="#00f5d4" intensity={0.5} />
-        <pointLight position={[5, 5, -5]} color="#7b2ff7" intensity={0.5} />
-        
-        <FloatingParticles />
-        <WavePlane />
-        
-        <OrbitControls enableZoom={false} enablePan={false} />
-      </Canvas>
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full"
+        style={{ background: '#0a0a0a' }}
+      />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-cyan-900/20" />
     </div>
   );
 }
-
-

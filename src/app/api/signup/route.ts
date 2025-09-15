@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/server/db";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 const schema = z.object({
@@ -12,11 +12,15 @@ const schema = z.object({
 
 export async function POST(request: Request) {
   try {
+    console.log('Signup API called');
     const body = await request.json();
+    console.log('Request body:', { ...body, password: '[REDACTED]' });
+    
     const { name, username, email, password } = schema.parse(body);
 
     const existing = await db.user.findFirst({ where: { OR: [{ email }, { username }] } });
     if (existing) {
+      console.log('User already exists:', existing.email || existing.username);
       return NextResponse.json({ error: "User already exists" }, { status: 400 });
     }
 
@@ -26,10 +30,10 @@ export async function POST(request: Request) {
       select: { id: true, email: true, name: true, username: true },
     });
 
+    console.log('User created successfully:', user);
     return NextResponse.json({ user });
   } catch (error) {
+    console.error('Signup error:', error);
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }
-
-

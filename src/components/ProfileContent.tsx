@@ -1,7 +1,8 @@
 "use client";
 import { motion } from "framer-motion";
+import Image from 'next/image';
 import { useState } from "react";
-import Sidebar from "./Sidebar";
+import AppLayout from "./AppLayout";
 import Header from "./Header";
 
 interface User {
@@ -17,7 +18,6 @@ interface ProfileContentProps {
 }
 
 export default function ProfileContent({ user }: ProfileContentProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user.name || "",
@@ -31,27 +31,20 @@ export default function ProfileContent({ user }: ProfileContentProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
-      {/* Background Effects */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-      </div>
+    <AppLayout>
+      <div className="bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 rounded-2xl p-6 h-full">
+        {/* Background Effects */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        </div>
 
-      <div className="relative flex">
-        {/* Sidebar */}
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col">
+        <div className="relative">
           {/* Header */}
-          <Header 
-            user={user} 
-            onMenuClick={() => setSidebarOpen(true)}
-          />
+          <Header user={user} />
           
           {/* Profile Content */}
-          <main className="flex-1 p-6">
+          <div className="mt-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -64,9 +57,11 @@ export default function ProfileContent({ user }: ProfileContentProps) {
                   {/* Avatar */}
                   <div className="relative">
                     {user.image ? (
-                      <img
+                      <Image
                         src={user.image}
                         alt={user.name || user.username || "User"}
+                        width={96}
+                        height={96}
                         className="w-24 h-24 rounded-full border-4 border-white/20"
                       />
                     ) : (
@@ -179,9 +174,9 @@ export default function ProfileContent({ user }: ProfileContentProps) {
                 </div>
               </div>
             </motion.div>
-          </main>
+          </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }

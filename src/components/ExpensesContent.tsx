@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import Sidebar from "./Sidebar";
+import AppLayout from "./AppLayout";
 import Header from "./Header";
 import ExpenseList from "./ExpenseList";
 import ExpenseFilters from "./ExpenseFilters";
@@ -19,31 +19,23 @@ interface ExpensesContentProps {
 }
 
 export default function ExpensesContent({ user }: ExpensesContentProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState("Today");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
-      {/* Background Effects */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-      </div>
+    <AppLayout>
+      <div className="bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 rounded-2xl p-6 h-full">
+        {/* Background Effects */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        </div>
 
-      <div className="relative flex">
-        {/* Sidebar */}
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col">
+        <div className="relative">
           {/* Header */}
-          <Header 
-            user={user} 
-            onMenuClick={() => setSidebarOpen(true)}
-          />
+          <Header user={user} />
           
           {/* Expenses Content */}
-          <main className="flex-1 p-6">
+          <div className="mt-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -53,7 +45,7 @@ export default function ExpensesContent({ user }: ExpensesContentProps) {
               {/* Header Section */}
               <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
                 <div className="flex items-center justify-between">
-                  <h1 className="text-3xl font-bold text-white">Today's Expenses</h1>
+                  <h1 className="text-3xl font-bold text-white">Today&apos;s Expenses</h1>
                   <button className="px-6 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-xl hover:shadow-lg transition-all duration-200 flex items-center space-x-2">
                     <span>+</span>
                     <span>Add</span>
@@ -68,7 +60,7 @@ export default function ExpensesContent({ user }: ExpensesContentProps) {
               />
 
               {/* Expense List */}
-              <ExpenseList filter={activeFilter} />
+              <ExpenseList />
 
               {/* Monthly Summary */}
               <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
@@ -80,9 +72,9 @@ export default function ExpensesContent({ user }: ExpensesContentProps) {
                 </div>
               </div>
             </motion.div>
-          </main>
+          </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }

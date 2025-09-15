@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -14,22 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// NextAuth.js Models
 model Account {
   id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -50,55 +41,69 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Hisab Calculator Models
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  username      String?   @unique
-  email         String    @unique
+  username      String?       @unique
+  email         String        @unique
   emailVerified DateTime?
   image         String?
   password      String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Relations
+  isActive      Boolean       @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   accounts      Account[]
   sessions      Session[]
   expenses      Expense[]
+  friendships   Friendship[]  @relation("UserFriendships")
   transactions  Transaction[]
-  friendships   Friendship[] @relation("UserFriendships")
-  friendOf      Friendship[] @relation("FriendFriendships")
+  stats         UserStats?
+
+  @@index([email])
+  @@index([username])
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("users")
 }
 
 model Friend {
-  id        String   @id @default(cuid())
-  name      String
-  email     String?
-  phone     String?
-  avatar    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String        @id @default(cuid())
+  name         String
+  email        String?
+  phone        String?
+  avatar       String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  friendships  Friendship[]  @relation("FriendFriendships")
+  transactions Transaction[]
 
-  // Relations
-  friendships   Friendship[] @relation("FriendFriendships")
-  transactions  Transaction[]
+  @@index([name])
+  @@index([email])
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("friends")
 }
 
 model Friendship {
-  id        String   @id @default(cuid())
-  userId    String
-  friendId  String
-  balance   Float    @default(0) // Positive: friend owes user, Negative: user owes friend
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user       User   @relation("UserFriendships", fields: [userId], references: [id], onDelete: Cascade)
-  friend     Friend @relation("FriendFriendships", fields: [friendId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
+  id                String        @id @default(cuid())
+  userId            String
+  friendId          String
+  balance           Float         @default(0)
+  lastTransactionAt DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  friend            Friend        @relation("FriendFriendships", fields: [friendId], references: [id], onDelete: Cascade)
+  user              User          @relation("UserFriendships", fields: [userId], references: [id], onDelete: Cascade)
+  transactions      Transaction[]
 
   @@unique([userId, friendId])
+  @@index([userId])
+  @@index([friendId])
+  @@index([balance])
+  @@index([lastTransactionAt])
+  @@map("friendships")
 }
 
 model Expense {
@@ -109,34 +114,71 @@ model Expense {
   category    String
   description String?
   photo       String?
+  tags        String?
   date        DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([category])
+  @@index([date])
+  @@index([amount])
+  @@index([createdAt])
+  @@map("expenses")
 }
 
 model Transaction {
-  id          String   @id @default(cuid())
-  userId      String
-  friendId    String
+  id           String     @id @default(cuid())
+  userId       String
+  friendId     String
   friendshipId String
-  amount      Float
-  type        TransactionType // GAVE, TOOK, SETTLED
-  description String?
-  date        DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  amount       Float
+  type         String
+  description  String?
+  reference    String?
+  date         DateTime   @default(now())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  friendship   Friendship @relation(fields: [friendshipId], references: [id], onDelete: Cascade)
+  friend       Friend     @relation(fields: [friendId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Relations
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  friend      Friend     @relation(fields: [friendId], references: [id], onDelete: Cascade)
-  friendship  Friendship @relation(fields: [friendshipId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([friendId])
+  @@index([friendshipId])
+  @@index([type])
+  @@index([date])
+  @@index([createdAt])
+  @@map("transactions")
 }
 
-enum TransactionType {
-  GAVE
-  TOOK
-  SETTLED
+model UserStats {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  totalExpenses     Float    @default(0)
+  totalIncome       Float    @default(0)
+  totalOwed         Float    @default(0)
+  totalOwing        Float    @default(0)
+  friendsCount      Int      @default(0)
+  expensesCount     Int      @default(0)
+  transactionsCount Int      @default(0)
+  lastCalculated    DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_stats")
+}
+
+model CacheEntry {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([key])
+  @@index([expiresAt])
+  @@map("cache_entries")
 }
