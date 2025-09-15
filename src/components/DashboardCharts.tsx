@@ -62,21 +62,21 @@ export default function DashboardCharts() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="space-y-8"
+        className="space-y-6 sm:space-y-8"
       >
-        <div className="flex items-center gap-4 mb-8">
-          <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm">
-            <Activity className="w-8 h-8 text-purple-400" />
+        <div className="flex items-center gap-3 sm:gap-4 mb-6">
+          <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm">
+            <Activity className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400" />
           </div>
           <div>
-            <h2 className="text-3xl font-bold text-white mb-2">Charts & Insights</h2>
-            <p className="text-gray-400 text-lg">Analyzing your financial data...</p>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1 sm:mb-2">Charts & Insights</h2>
+            <p className="text-gray-400 text-sm sm:text-base">Analyzing your financial data...</p>
           </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 animate-pulse">
-          <div className="bg-gradient-to-br from-black/40 to-black/20 rounded-2xl h-80 backdrop-blur-sm border border-white/10"></div>
-          <div className="bg-gradient-to-br from-black/40 to-black/20 rounded-2xl h-80 backdrop-blur-sm border border-white/10"></div>
-          <div className="bg-gradient-to-br from-black/40 to-black/20 rounded-2xl h-80 backdrop-blur-sm border border-white/10"></div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 md:gap-8 animate-pulse">
+          <div className="bg-gradient-to-br from-black/40 to-black/20 rounded-2xl h-64 sm:h-80 backdrop-blur-sm border border-white/10"></div>
+          <div className="bg-gradient-to-br from-black/40 to-black/20 rounded-2xl h-64 sm:h-80 backdrop-blur-sm border border-white/10"></div>
+          <div className="bg-gradient-to-br from-black/40 to-black/20 rounded-2xl h-64 sm:h-80 backdrop-blur-sm border border-white/10"></div>
         </div>
       </motion.div>
     );
@@ -91,11 +91,11 @@ export default function DashboardCharts() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-black/90 backdrop-blur-sm border border-white/20 rounded-xl p-4 shadow-2xl">
-          <p className="text-white font-semibold text-lg mb-2">{label}</p>
+        <div className="bg-black/90 backdrop-blur-sm border border-white/20 rounded-xl p-3 sm:p-4 shadow-2xl">
+          <p className="text-white font-semibold text-base sm:text-lg mb-1 sm:mb-2">{label}</p>
           {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-gray-300 text-base">
-              <span className="inline-block w-3 h-3 rounded-full mr-2" style={{ backgroundColor: entry.color }}></span>
+            <p key={index} className="text-gray-300 text-sm sm:text-base">
+              <span className="inline-block w-2 h-2 sm:w-3 sm:h-3 rounded-full mr-2" style={{ backgroundColor: entry.color }}></span>
               {entry.name}: ₹{entry.value.toLocaleString()}
             </p>
           ))}
@@ -110,95 +110,95 @@ export default function DashboardCharts() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="space-y-8"
+      className="space-y-6 sm:space-y-8"
     >
       {/* Header Section */}
-      <div className="flex items-center gap-4 mb-8">
-        <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm">
-          <Activity className="w-8 h-8 text-purple-400" />
+      <div className="flex items-center gap-3 sm:gap-4 mb-6">
+        <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm">
+          <Activity className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400" />
         </div>
         <div>
-          <h2 className="text-3xl font-bold text-white mb-2">Charts & Insights</h2>
-          <p className="text-gray-400 text-lg">Comprehensive financial analytics and trends</p>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1 sm:mb-2">Charts & Insights</h2>
+          <p className="text-gray-400 text-sm sm:text-base">Comprehensive financial analytics and trends</p>
         </div>
       </div>
 
       {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
         <motion.div
           whileHover={{ scale: 1.02, y: -2 }}
-          className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 rounded-2xl p-6 backdrop-blur-sm border border-purple-500/20"
+          className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 rounded-2xl p-4 sm:p-6 backdrop-blur-sm border border-purple-500/20"
         >
-          <div className="flex items-center gap-3 mb-3">
-            <DollarSign className="w-6 h-6 text-purple-400" />
-            <span className="text-purple-300 font-medium text-lg">Total Expenses</span>
+          <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+            <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
+            <span className="text-purple-300 font-medium text-base sm:text-lg">Total Expenses</span>
           </div>
-          <p className="text-2xl font-bold text-white">₹{totalExpenses.toLocaleString()}</p>
+          <p className="text-lg sm:text-xl md:text-2xl font-bold text-white">₹{totalExpenses.toLocaleString()}</p>
         </motion.div>
 
         <motion.div
           whileHover={{ scale: 1.02, y: -2 }}
-          className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 rounded-2xl p-6 backdrop-blur-sm border border-blue-500/20"
+          className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 rounded-2xl p-4 sm:p-6 backdrop-blur-sm border border-blue-500/20"
         >
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
             {expensesTrend >= 0 ? (
-              <TrendingUp className="w-6 h-6 text-red-400" />
+              <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" />
             ) : (
-              <TrendingDown className="w-6 h-6 text-green-400" />
+              <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
             )}
-            <span className="text-blue-300 font-medium text-lg">This Month</span>
+            <span className="text-blue-300 font-medium text-base sm:text-lg">This Month</span>
           </div>
-          <p className="text-2xl font-bold text-white">₹{currentMonthExpenses.toLocaleString()}</p>
-          <p className={`text-sm mt-1 ${expensesTrend >= 0 ? 'text-red-400' : 'text-green-400'}`}>
+          <p className="text-lg sm:text-xl md:text-2xl font-bold text-white">₹{currentMonthExpenses.toLocaleString()}</p>
+          <p className={`text-xs sm:text-sm mt-1 ${expensesTrend >= 0 ? 'text-red-400' : 'text-green-400'}`}>
             {expensesTrend >= 0 ? '+' : ''}₹{expensesTrend.toLocaleString()} from last month
           </p>
         </motion.div>
 
         <motion.div
           whileHover={{ scale: 1.02, y: -2 }}
-          className="bg-gradient-to-br from-green-500/20 to-green-600/10 rounded-2xl p-6 backdrop-blur-sm border border-green-500/20"
+          className="bg-gradient-to-br from-green-500/20 to-green-600/10 rounded-2xl p-4 sm:p-6 backdrop-blur-sm border border-green-500/20"
         >
-          <div className="flex items-center gap-3 mb-3">
-            <Users className="w-6 h-6 text-green-400" />
-            <span className="text-green-300 font-medium text-lg">Friends</span>
+          <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
+            <span className="text-green-300 font-medium text-base sm:text-lg">Friends</span>
           </div>
-          <p className="text-2xl font-bold text-white">{totalFriends}</p>
-          <p className="text-sm text-green-400 mt-1">Active connections</p>
+          <p className="text-lg sm:text-xl md:text-2xl font-bold text-white">{totalFriends}</p>
+          <p className="text-xs sm:text-sm text-green-400 mt-1">Active connections</p>
         </motion.div>
 
         <motion.div
           whileHover={{ scale: 1.02, y: -2 }}
-          className="bg-gradient-to-br from-orange-500/20 to-orange-600/10 rounded-2xl p-6 backdrop-blur-sm border border-orange-500/20"
+          className="bg-gradient-to-br from-orange-500/20 to-orange-600/10 rounded-2xl p-4 sm:p-6 backdrop-blur-sm border border-orange-500/20"
         >
-          <div className="flex items-center gap-3 mb-3">
-            <BarChart3 className="w-6 h-6 text-orange-400" />
-            <span className="text-orange-300 font-medium text-lg">Categories</span>
+          <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+            <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
+            <span className="text-orange-300 font-medium text-base sm:text-lg">Categories</span>
           </div>
-          <p className="text-2xl font-bold text-white">{chartData?.categoryData.length || 0}</p>
-          <p className="text-sm text-orange-400 mt-1">Expense categories</p>
+          <p className="text-lg sm:text-xl md:text-2xl font-bold text-white">{chartData?.categoryData.length || 0}</p>
+          <p className="text-xs sm:text-sm text-orange-400 mt-1">Expense categories</p>
         </motion.div>
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
         {/* Category Distribution - Pie Chart */}
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="bg-gradient-to-br from-black/40 to-black/20 rounded-2xl p-8 backdrop-blur-sm border border-white/10"
+          className="bg-gradient-to-br from-black/40 to-black/20 rounded-2xl p-4 sm:p-6 md:p-8 backdrop-blur-sm border border-white/10"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <PieChartIcon className="w-6 h-6 text-purple-400" />
-            <h3 className="text-2xl font-bold text-white">Expense Categories</h3>
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <PieChartIcon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white">Expense Categories</h3>
           </div>
-          <ResponsiveContainer width="100%" height={350}>
+          <ResponsiveContainer width="100%" height={250} className="sm:h-[350px]">
             <PieChart>
               <Pie
                 data={chartData?.categoryData}
                 dataKey="value"
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={120}
+                innerRadius={40}
+                outerRadius={80}
                 paddingAngle={5}
                 strokeWidth={2}
                 stroke="rgba(255,255,255,0.1)"
@@ -209,7 +209,7 @@ export default function DashboardCharts() {
               </Pie>
               <Tooltip content={<CustomTooltip />} />
               <Legend
-                wrapperStyle={{ color: '#fff', fontSize: '16px', paddingTop: '20px' }}
+                wrapperStyle={{ color: '#fff', fontSize: '12px', paddingTop: '10px' }}
                 iconType="circle"
               />
             </PieChart>
@@ -219,13 +219,13 @@ export default function DashboardCharts() {
         {/* Monthly Trends - Area Chart */}
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="bg-gradient-to-br from-black/40 to-black/20 rounded-2xl p-8 backdrop-blur-sm border border-white/10"
+          className="bg-gradient-to-br from-black/40 to-black/20 rounded-2xl p-4 sm:p-6 md:p-8 backdrop-blur-sm border border-white/10"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <TrendingUp className="w-6 h-6 text-blue-400" />
-            <h3 className="text-2xl font-bold text-white">Monthly Trends</h3>
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white">Monthly Trends</h3>
           </div>
-          <ResponsiveContainer width="100%" height={350}>
+          <ResponsiveContainer width="100%" height={250} className="sm:h-[350px]">
             <AreaChart data={chartData?.trendData}>
               <defs>
                 <linearGradient id="expensesGradient" x1="0" y1="0" x2="0" y2="1">
@@ -242,23 +242,23 @@ export default function DashboardCharts() {
                 dataKey="month"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#9CA3AF', fontSize: 14 }}
+                tick={{ fill: '#9CA3AF', fontSize: 12 }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#9CA3AF', fontSize: 14 }}
+                tick={{ fill: '#9CA3AF', fontSize: 12 }}
                 tickFormatter={(value) => `₹${value}`}
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend
-                wrapperStyle={{ color: '#fff', fontSize: '16px', paddingTop: '10px' }}
+                wrapperStyle={{ color: '#fff', fontSize: '12px', paddingTop: '10px' }}
               />
               <Area
                 type="monotone"
                 dataKey="expenses"
                 stroke="#8B5CF6"
-                strokeWidth={3}
+                strokeWidth={2}
                 fill="url(#expensesGradient)"
                 name="Expenses"
               />
@@ -266,7 +266,7 @@ export default function DashboardCharts() {
                 type="monotone"
                 dataKey="income"
                 stroke="#10B981"
-                strokeWidth={3}
+                strokeWidth={2}
                 fill="url(#incomeGradient)"
                 name="Income"
               />
@@ -278,30 +278,30 @@ export default function DashboardCharts() {
       {/* Friends Comparison - Enhanced Bar Chart */}
       <motion.div
         whileHover={{ scale: 1.005 }}
-        className="bg-gradient-to-br from-black/40 to-black/20 rounded-2xl p-8 backdrop-blur-sm border border-white/10"
+        className="bg-gradient-to-br from-black/40 to-black/20 rounded-2xl p-4 sm:p-6 md:p-8 backdrop-blur-sm border border-white/10"
       >
-        <div className="flex items-center gap-3 mb-6">
-          <Users className="w-6 h-6 text-green-400" />
-          <h3 className="text-2xl font-bold text-white">Friends Balance Overview</h3>
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <Users className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white">Friends Balance Overview</h3>
         </div>
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={300} className="sm:h-[400px]">
           <BarChart data={chartData?.friendsData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
             <XAxis
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#9CA3AF', fontSize: 14 }}
+              tick={{ fill: '#9CA3AF', fontSize: 12 }}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#9CA3AF', fontSize: 14 }}
+              tick={{ fill: '#9CA3AF', fontSize: 12 }}
               tickFormatter={(value) => `₹${value}`}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
-              wrapperStyle={{ color: '#fff', fontSize: '16px', paddingTop: '10px' }}
+              wrapperStyle={{ color: '#fff', fontSize: '12px', paddingTop: '10px' }}
             />
             <Bar
               dataKey="you"

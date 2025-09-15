@@ -57,10 +57,10 @@ export default function ExpenseOverview() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 animate-pulse">
-            <div className="h-20 bg-white/10 rounded"></div>
+          <div key={i} className="bg-white/10 backdrop-blur-xl rounded-2xl p-3 sm:p-4 md:p-6 border border-white/20 animate-pulse">
+            <div className="h-16 md:h-20 bg-white/10 rounded"></div>
           </div>
         ))}
       </div>
@@ -94,19 +94,19 @@ export default function ExpenseOverview() {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
       {expenseData.map((item, index) => (
-        <div key={index} className="bg-black/20 rounded-xl p-4">
-          <h3 className="text-gray-400 text-sm">{item.title}</h3>
-          <p className="text-2xl font-semibold text-white">{item.value}</p>
+        <div key={index} className="bg-black/20 rounded-xl p-3 sm:p-4">
+          <h3 className="text-gray-400 text-xs sm:text-sm">{item.title}</h3>
+          <p className="text-lg sm:text-xl md:text-2xl font-semibold text-white truncate">{item.value}</p>
         </div>
       ))}
-      <div className="bg-black/20 rounded-xl p-4 flex justify-between items-center">
+      <div className="bg-black/20 rounded-xl p-3 sm:p-4 flex justify-between items-center">
         <div>
-          <h3 className="text-gray-400 text-sm">Biggest Expense Category</h3>
-          <p className="text-2xl font-semibold text-white">{stats?.biggestCategory || 'N/A'}</p>
+          <h3 className="text-gray-400 text-xs sm:text-sm">Biggest Expense Category</h3>
+          <p className="text-lg sm:text-xl md:text-2xl font-semibold text-white truncate">{stats?.biggestCategory || 'N/A'}</p>
         </div>
-        <div className="text-2xl">🍕</div>
+        <div className="text-xl sm:text-2xl">🍕</div>
       </div>
     </div>
   );
