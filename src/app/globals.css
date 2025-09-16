@@ -1,15 +1,15 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #1A1625; /* Dark purple background */
-  --foreground: #E0E0E0; /* Light gray text */
-}
-
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: #1A1625; /* Dark purple background */
+  --foreground: #E0E0E0; /* Light gray text */
 }
 
 /* Force dark theme on all devices */
@@ -39,9 +39,4 @@ button, a, input, select, textarea {
 /* Prevent text size adjustment on orientation change in iOS */
 html {
   -webkit-text-size-adjust: 100%;
-}
-
-/* Ensure dark background on all elements */
-* {
-  background-color: inherit;
 }
