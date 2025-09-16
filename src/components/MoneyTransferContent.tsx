@@ -35,7 +35,7 @@ interface Transaction {
 }
 
 interface MoneyTransferContentProps {
-  user: User;
+  user?: User;
 }
 
 export default function MoneyTransferContent({ user }: MoneyTransferContentProps) {
@@ -283,7 +283,7 @@ export default function MoneyTransferContent({ user }: MoneyTransferContentProps
     <AppLayout>
       <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 h-full">
         {/* Header */}
-        <Header user={user} />
+        {user && <Header user={user} />}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
