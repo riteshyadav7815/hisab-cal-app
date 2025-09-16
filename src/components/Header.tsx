@@ -7,6 +7,7 @@ interface User {
   email?: string | null;
   username?: string | null;
   image?: string | null;
+  userNumber?: number | null;
 }
 
 interface HeaderProps {
@@ -37,6 +38,13 @@ export default function Header({ user }: HeaderProps) {
           </h1>
         </div>
       </div>
+      
+      {/* User Number Badge */}
+      {user.userNumber && (
+        <div className="bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full w-8 h-8 flex items-center justify-center text-white text-xs font-bold">
+          #{user.userNumber}
+        </div>
+      )}
     </header>
   );
 }

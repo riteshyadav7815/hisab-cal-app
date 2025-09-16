@@ -18,8 +18,8 @@ export default function ThreeBackground() {
     const animate = () => {
       time += 0.01;
       
-      // Clear canvas
-      ctx.fillStyle = '#0a0a0a';
+      // Clear canvas with dark background
+      ctx.fillStyle = '#1A1735';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // Create gradient background
@@ -29,7 +29,7 @@ export default function ThreeBackground() {
       );
       gradient.addColorStop(0, 'rgba(123, 47, 247, 0.1)');
       gradient.addColorStop(0.5, 'rgba(0, 245, 212, 0.05)');
-      gradient.addColorStop(1, 'rgba(10, 10, 10, 0.8)');
+      gradient.addColorStop(1, 'rgba(26, 23, 53, 0.8)');
       
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -84,7 +84,7 @@ export default function ThreeBackground() {
       <canvas
         ref={canvasRef}
         className="w-full h-full"
-        style={{ background: '#0a0a0a' }}
+        style={{ background: '#1A1735' }}
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-cyan-900/20" />
     </div>

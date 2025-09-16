@@ -13,6 +13,7 @@ interface User {
   email?: string | null;
   username?: string | null;
   image?: string | null;
+  userNumber?: number | null;
 }
 
 interface DashboardContentProps {

@@ -5,9 +5,19 @@ import DashboardContent from "./DashboardContent";
 import LoginModal from "./LoginModal";
 import ThreeBackground from "./ThreeBackground";
 
+interface User {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  username?: string | null;
+  image?: string | null;
+  userNumber?: number | null;
+}
+
 export default function DashboardWrapper() {
   const { data: session, status } = useSession();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     if (status === "loading") return; // Still loading
@@ -20,6 +30,30 @@ export default function DashboardWrapper() {
       setShowLoginModal(false);
     }
   }, [session, status]);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      // Fetch user with userNumber
+      fetch(`/api/user/${session.user.id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.user) {
+            setUser(data.user);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching user:', error);
+          // Fallback to session user data
+          setUser({
+            id: session.user.id,
+            name: session.user.name,
+            email: session.user.email,
+            image: session.user.image,
+            userNumber: session.user.userNumber
+          });
+        });
+    }
+  }, [session]);
 
   // Show loading state
   if (status === "loading") {
@@ -34,10 +68,10 @@ export default function DashboardWrapper() {
   }
 
   return (
-    <div className="relative min-h-screen">
-      {session ? (
+    <div className="relative min-h-screen bg-gradient-to-br from-[#1A1735] via-[#2D1B69] to-[#1A1735]">
+      {session && user ? (
         // User is authenticated, show dashboard
-        <DashboardContent user={session.user} />
+        <DashboardContent user={user} />
       ) : (
         // User not authenticated, show dashboard preview with modal
         <div className="relative min-h-screen bg-gradient-to-br from-[#1A1735] via-[#2D1B69] to-[#1A1735]">

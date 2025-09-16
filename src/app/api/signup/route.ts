@@ -25,10 +25,14 @@ export async function POST(request: Request) {
     }
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = await db.user.create({
-      data: { name, username, email, password: hashed },
-      select: { id: true, email: true, name: true, username: true },
-    });
+    // Use raw query to create user and get the userNumber
+    const users: any[] = await db.$queryRaw`
+      INSERT INTO users (id, name, username, email, password, "createdAt", "updatedAt")
+      VALUES (${crypto.randomUUID()}, ${name}, ${username}, ${email}, ${hashed}, NOW(), NOW())
+      RETURNING id, email, name, username, "userNumber";
+    `;
+    
+    const user = users[0];
 
     console.log('User created successfully:', user);
     return NextResponse.json({ user });

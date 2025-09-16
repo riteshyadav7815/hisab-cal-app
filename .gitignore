@@ -12,3 +12,4 @@ prisma/dev.db-journal
 node_modules/
 *.log
 .vercel
+.env*.local

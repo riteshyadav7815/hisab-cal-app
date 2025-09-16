@@ -10,6 +10,7 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
+      userNumber?: number | null;
     } & DefaultSession["user"];
   }
 }
@@ -39,31 +40,50 @@ const authOptions: NextAuthOptions = {
           return null;
         }
         // Allow username OR email in the same field by checking both
-        const user = await prisma.user.findFirst({
-          where: {
-            OR: [{ username: credentials.username }, { email: credentials.username }],
-          },
-        });
-        console.log('User found:', user ? 'Yes' : 'No');
-        if (!user || !user.password) {
-          console.log('User not found or no password');
+        try {
+          const users: any[] = await prisma.$queryRaw`
+            SELECT id, email, name, image, "userNumber", password 
+            FROM users 
+            WHERE username = ${credentials.username} OR email = ${credentials.username}
+          `;
+          
+          const user = users[0];
+          console.log('User found:', user ? 'Yes' : 'No');
+          if (!user || !user.password) {
+            console.log('User not found or no password');
+            return null;
+          }
+          const ok = await bcrypt.compare(credentials.password, user.password);
+          console.log('Password match:', ok);
+          if (!ok) return null;
+          console.log('Login successful for:', user.email);
+          return { 
+            id: user.id, 
+            email: user.email, 
+            name: user.name, 
+            image: user.image,
+            userNumber: user.userNumber
+          };
+        } catch (error) {
+          console.error('Database query error:', error);
           return null;
         }
-        const ok = await bcrypt.compare(credentials.password, user.password);
-        console.log('Password match:', ok);
-        if (!ok) return null;
-        console.log('Login successful for:', user.email);
-        return { id: user.id, email: user.email, name: user.name, image: user.image };
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+        token.userNumber = (user as any).userNumber;
+      }
       return token;
     },
     async session({ session, token }) {
-      if (token?.id && session.user) session.user.id = token.id as string;
+      if (token?.id && session.user) {
+        session.user.id = token.id as string;
+        session.user.userNumber = token.userNumber as number | undefined;
+      }
       return session;
     },
   },

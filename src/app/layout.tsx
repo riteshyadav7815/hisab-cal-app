@@ -27,13 +27,13 @@ export const metadata: Metadata = {
   // Mobile app capable
   appleWebApp: {
     title: 'Hisab Cal',
-    statusBarStyle: 'default',
+    statusBarStyle: 'black-translucent',
     capable: true,
   },
   // Theme color for mobile browsers
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#7B5CFF' },
-    { media: '(prefers-color-scheme: dark)', color: '#7B5CFF' },
+    { media: '(prefers-color-scheme: light)', color: '#1A1625' },
+    { media: '(prefers-color-scheme: dark)', color: '#1A1625' },
   ],
   // Icons for mobile devices
   icons: {
@@ -51,9 +51,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-[#1A1735] via-[#2D1B69] to-[#1A1735] min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-[#1A1735] via-[#2D1B69] to-[#1A1735] min-h-screen dark:bg-gradient-to-br dark:from-[#1A1735] dark:via-[#2D1B69] dark:to-[#1A1735]`}
       >
         <ClientSessionProvider>
           {children}
