@@ -33,19 +33,19 @@ interface Friend {
 
 interface Transaction {
   id: string;
-  title: string;
   amount: number;
-  date: string;
-  friendName: string;
   type: 'GAVE' | 'RECEIVED';
-  status: 'PENDING' | 'SETTLED';
+  description: string;
+  createdAt: string;
+  friendName: string;
 }
 
 export default function ManagementModal({ isOpen, onClose }: ManagementModalProps) {
-  const [activeTab, setActiveTab] = useState<'friends' | 'categories' | 'preferences' | 'security'>('friends');
+  const [activeTab, setActiveTab] = useState<'friends' | 'categories' | 'preferences' | 'security' | 'transactions'>('friends');
   const [friends, setFriends] = useState<Friend[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
+  const [transactionsLoading, setTransactionsLoading] = useState(false);
   const [settingsData, setSettingsData] = useState<SettingsData>({
     categories: ['Food', 'Travel', 'Shopping', 'Entertainment', 'Bills', 'Health', 'Education', 'Other'],
     preferences: {
@@ -105,12 +105,17 @@ export default function ManagementModal({ isOpen, onClose }: ManagementModalProp
 
   const fetchTransactions = async () => {
     try {
-      const data = await cachedFetch('/api/transactions', {}, 20000); // Cache for 20 seconds
-      if (data.success && data.data) {
-        setTransactions(data.data.slice(0, 10)); // Get last 10 transactions
+      setTransactionsLoading(true);
+      const response = await fetch('/api/transactions/recent');
+      const data = await response.json();
+      
+      if (data.success) {
+        setTransactions(data.data);
       }
     } catch (error) {
       console.error('Error fetching transactions:', error);
+    } finally {
+      setTransactionsLoading(false);
     }
   };
 
@@ -171,7 +176,7 @@ export default function ManagementModal({ isOpen, onClose }: ManagementModalProp
     }));
   };
 
-  if (!isOpen) return null;
+    if (!isOpen) return null;
 
   return (
     <AnimatePresence>
@@ -213,6 +218,7 @@ export default function ManagementModal({ isOpen, onClose }: ManagementModalProp
             {[
               { id: 'friends', label: 'Friends & Settlements', icon: Users },
               { id: 'categories', label: 'Categories', icon: FileText },
+              { id: 'transactions', label: 'Recent Transactions', icon: CreditCard },
               { id: 'preferences', label: 'Preferences', icon: Settings },
               { id: 'security', label: 'Security', icon: Shield },
             ].map((tab) => {
@@ -234,7 +240,7 @@ export default function ManagementModal({ isOpen, onClose }: ManagementModalProp
             })}
           </div>
 
-          {/* Content */}
+          {/* Tab Content */}
           <div className="flex-1 overflow-y-auto">
             {activeTab === 'friends' && (
               <motion.div
@@ -243,7 +249,7 @@ export default function ManagementModal({ isOpen, onClose }: ManagementModalProp
                 className="space-y-6"
               >
                 {/* Friends with Balances */}
-                <div className="bg-gradient-to-br from-white/10 via-white/5 to-cyan-500/10 rounded-2xl p-8 border border-white/10 shadow-lg">
+                <div className="bg-gradient-to-br from-white/10 via-white/5 to-purple-500/10 rounded-2xl p-8 border border-white/10 shadow-lg">
                   <h3 className="text-2xl font-semibold text-white mb-8 flex items-center space-x-3">
                     <Users className="w-6 h-6 text-cyan-400" />
                     <span>Friends & Balance Summary</span>
@@ -360,11 +366,11 @@ export default function ManagementModal({ isOpen, onClose }: ManagementModalProp
                               <ArrowUpDown className="w-5 h-5" />
                             </div>
                             <div>
-                              <p className="text-white font-semibold text-base">{transaction.title}</p>
+                              <p className="text-white font-semibold text-base">{transaction.friendName}</p>
                               <p className="text-gray-300 text-sm">
                                 {transaction.type === 'GAVE' ? '💸 Paid to' : '💰 Received from'} <span className="font-medium">{transaction.friendName}</span>
                               </p>
-                              <p className="text-gray-500 text-xs">{transaction.date}</p>
+                              <p className="text-gray-500 text-xs">{new Date(transaction.createdAt).toLocaleDateString()}</p>
                             </div>
                           </div>
                           
@@ -375,11 +381,11 @@ export default function ManagementModal({ isOpen, onClose }: ManagementModalProp
                               {transaction.type === 'GAVE' ? '-' : '+'}₹{transaction.amount.toLocaleString()}
                             </p>
                             <span className={`text-xs px-3 py-1 rounded-full font-medium ${
-                              transaction.status === 'SETTLED' 
-                                ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                                : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                              transaction.type === 'GAVE' 
+                                ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
+                                : 'bg-green-500/20 text-green-400 border border-green-500/30'
                             }`}>
-                              {transaction.status}
+                              {transaction.type}
                             </span>
                           </div>
                         </div>
@@ -436,6 +442,82 @@ export default function ManagementModal({ isOpen, onClose }: ManagementModalProp
                       </motion.div>
                     ))}
                   </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'transactions' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-semibold text-white flex items-center space-x-2">
+                    <CreditCard className="w-5 h-5 text-green-400" />
+                    <span>Recent Money Transfers</span>
+                  </h3>
+                </div>
+                
+                <div className="bg-gradient-to-br from-white/10 via-white/5 to-purple-500/10 rounded-2xl p-8 border border-white/10 shadow-lg">
+                  {transactionsLoading ? (
+                    <div className="space-y-4">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="bg-white/5 rounded-xl p-4 animate-pulse">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-white/10 rounded-full"></div>
+                            <div className="flex-1">
+                              <div className="h-4 bg-white/10 rounded w-1/2 mb-2"></div>
+                              <div className="h-3 bg-white/10 rounded w-1/3"></div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : transactions.length === 0 ? (
+                    <div className="text-center py-12 text-gray-400">
+                      <CreditCard className="w-16 h-16 mx-auto mb-6 opacity-50" />
+                      <p className="text-xl mb-3">No transactions yet</p>
+                      <p className="text-base">Start transferring money to see transactions here</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                      {transactions.map((transaction) => (
+                        <div
+                          key={transaction.id}
+                          className="flex items-center justify-between p-4 bg-gradient-to-r from-black/30 to-gray-900/20 rounded-xl hover:from-black/40 hover:to-gray-900/30 transition-all duration-300 border border-white/5 hover:border-white/10"
+                        >
+                          <div className="flex items-center space-x-4">
+                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold">
+                              {transaction.friendName.charAt(0)}
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-white">{transaction.friendName}</h4>
+                              <p className="text-sm text-gray-400">{transaction.description}</p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {new Date(transaction.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-lg font-bold ${
+                              transaction.type === 'GAVE' ? 'text-red-400' : 'text-green-400'
+                            }`}>
+                              {transaction.type === 'GAVE' ? '-' : '+'}₹{transaction.amount.toLocaleString()}
+                            </p>
+                            <span className={`text-xs px-3 py-1 rounded-full font-medium ${
+                              transaction.type === 'GAVE' 
+                                ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
+                                : 'bg-green-500/20 text-green-400 border border-green-500/30'
+                            }`}>
+                              {transaction.type}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}

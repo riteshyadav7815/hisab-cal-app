@@ -7,7 +7,6 @@ import { Home, Users, Plus, BarChart3, Settings as SettingsIcon, User, LogOut, A
 
 interface SidebarProps {
   onAddFriendClick?: () => void;
-  onManagementClick?: () => void;
 }
 
 const navigation = [
@@ -16,19 +15,17 @@ const navigation = [
   { name: "Add Expense", href: "/add-expense", icon: Plus, type: "link" },
   { name: "Money Transfer", href: "/transfer", icon: ArrowLeftRight, type: "link" },
   { name: "Reports", href: "/reports", icon: BarChart3, type: "link" },
-  { name: "Management", href: "/management", icon: SettingsIcon, type: "modal", modalType: "management" },
+  { name: "Management", href: "/management", icon: SettingsIcon, type: "link" },
   { name: "Settings", href: "/settings", icon: SettingsIcon, type: "link" },
 ];
 
-export default function Sidebar({ onAddFriendClick, onManagementClick }: SidebarProps) {
+export default function Sidebar({ onAddFriendClick }: SidebarProps) {
   const pathname = usePathname();
 
   const handleItemClick = (item: typeof navigation[0]) => {
     if (item.type === "modal") {
       if (item.modalType === "addFriend" && onAddFriendClick) {
         onAddFriendClick();
-      } else if (item.modalType === "management" && onManagementClick) {
-        onManagementClick();
       }
     }
     // For links, the Link component will handle navigation

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppLayout from "./AppLayout";
 import Header from "./Header";
-import { Users, BarChart3, CreditCard, Check, X, Send, ArrowDownCircle, ArrowUpCircle, User, MessageSquare, DollarSign, Shield, FileText, Settings } from "lucide-react";
+import { Users, BarChart3, CreditCard, Check, X, Send, ArrowDownCircle, ArrowUpCircle, Calculator, User, DollarSign, MessageSquare, Shield, FileText, Settings } from "lucide-react";
 import { refreshDashboard } from "./ExpenseOverview";
 import { cachedFetch, apiCache } from "@/lib/api-cache";
 
@@ -23,14 +23,6 @@ interface Friend {
   balance: number;
   lastActivity: string;
   email?: string;
-}
-
-interface Group {
-  id: string;
-  name: string;
-  members: string[];
-  totalExpenses: number;
-  avatar: string;
 }
 
 interface Transaction {
@@ -56,19 +48,17 @@ interface SettingsData {
   };
 }
 
-interface ManagementContentProps {
+interface ManagementContentModernProps {
   user: User;
 }
 
-export default function ManagementContent({ user }: ManagementContentProps) {
+export default function ManagementContentModern({ user }: ManagementContentModernProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'friends' | 'categories' | 'preferences' | 'security'>('friends');
+  const [activeTab, setActiveTab] = useState<'friends' | 'categories' | 'preferences' | 'security' | 'transactions'>('friends');
   const [friends, setFriends] = useState<Friend[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [groups] = useState<Group[]>([]); // Groups functionality can be added later
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [transactionsLoading, setTransactionsLoading] = useState(false);
-  const [settlingFriendId, setSettlingFriendId] = useState<string | null>(null);
   const [settingsData, setSettingsData] = useState<SettingsData>({
     categories: ['Food', 'Travel', 'Shopping', 'Entertainment', 'Bills', 'Health', 'Education', 'Other'],
     preferences: {
@@ -83,41 +73,41 @@ export default function ManagementContent({ user }: ManagementContentProps) {
     }
   });
   const [newCategory, setNewCategory] = useState('');
+  const [settlingFriendId, setSettlingFriendId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchFriends();
-    fetchRecentTransactions();
+    fetchTransactions();
   }, []);
 
   const fetchFriends = async () => {
     try {
       setLoading(true);
-      console.log('🔄 Fetching friends for management...');
-      
-      // Use cached fetch for better performance
-      const data = await cachedFetch('/api/friendships', {}, 30000); // Cache for 30 seconds
+      const data = await cachedFetch('/api/friendships', {
+        headers: {
+          'Cache-Control': 'max-age=30',
+        },
+      }, 30000); // Cache for 30 seconds
       
       if (data.success && data.data) {
         setFriends(data.data.map((friend: any) => ({
           id: friend.id,
           name: friend.name,
-          avatar: friend.avatar || friend.name?.charAt(0)?.toUpperCase() || '👤',
           balance: friend.balance || 0,
-          lastActivity: friend.lastTransactionAt 
-            ? `Last transaction: ${new Date(friend.lastTransactionAt).toLocaleDateString()}`
+          lastActivity: friend.lastTransactionAt
+            ? new Date(friend.lastTransactionAt).toLocaleDateString()
             : 'No recent activity',
-          email: friend.email
+          avatar: friend.avatar || friend.name?.charAt(0)?.toUpperCase() || 'U'
         })));
-        console.log('✅ Friends loaded successfully:', data.data.length);
       }
     } catch (error) {
-      console.error('❌ Error fetching friends:', error);
+      console.error('Error fetching friends:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchRecentTransactions = async () => {
+  const fetchTransactions = async () => {
     try {
       setTransactionsLoading(true);
       const response = await fetch('/api/transactions/recent');
@@ -251,9 +241,9 @@ export default function ManagementContent({ user }: ManagementContentProps) {
               <div>
                 <h1 className="text-3xl font-bold text-white flex items-center space-x-3">
                   <Users className="w-8 h-8 text-purple-400" />
-                  <span>Management Center</span>
+                  <span>Management</span>
                 </h1>
-                <p className="text-gray-400 mt-2">Manage your finances and settings</p>
+                <p className="text-gray-400 mt-2">Manage balances, groups, and settlements</p>
               </div>
             </div>
           </motion.div>
@@ -270,7 +260,18 @@ export default function ManagementContent({ user }: ManagementContentProps) {
                 }`}
               >
                 <Users className="w-4 h-4 inline mr-2" />
-                Friends & Settlements
+                Friends
+              </button>
+              <button
+                onClick={() => setActiveTab('transactions')}
+                className={`px-4 py-2 rounded-lg whitespace-nowrap transition-all duration-200 ${
+                  activeTab === 'transactions'
+                    ? 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <CreditCard className="w-4 h-4 inline mr-2" />
+                Transactions
               </button>
               <button
                 onClick={() => setActiveTab('categories')}
@@ -310,98 +311,66 @@ export default function ManagementContent({ user }: ManagementContentProps) {
 
           {/* Tab Content */}
           <div className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
-            {/* Friends & Settlements Tab */}
+            {/* Friends Tab */}
             {activeTab === 'friends' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-bold text-white mb-4">Friends & Balance Summary</h2>
+                <h2 className="text-xl font-bold text-white mb-4">Manage Friends</h2>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Friends List */}
-                  <div className="space-y-4">
-                    {loading ? (
-                      <div className="text-gray-400 text-center py-4">Loading friends...</div>
-                    ) : friends.length === 0 ? (
-                      <div className="text-gray-400 text-center py-4">
-                        No friends found. Add friends first!
-                      </div>
-                    ) : (
-                      friends.map((friend) => (
-                        <div key={friend.id} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all duration-200">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-lg font-bold">
-                                {friend.avatar}
-                              </div>
-                              <div>
-                                <h3 className="font-semibold text-white text-lg">{friend.name}</h3>
-                                <p className="text-sm text-gray-400">{friend.lastActivity}</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className={`font-bold text-xl ${
-                                friend.balance > 0 ? 'text-green-400' : friend.balance < 0 ? 'text-red-400' : 'text-gray-400'
-                              }`}>
-                                {friend.balance > 0 ? '+' : ''}₹{Math.abs(friend.balance).toLocaleString('en-IN')}
-                              </p>
-                              <p className="text-sm text-gray-400 mt-1">
-                                💰 {friend.name} {friend.balance > 0 ? 'owes you' : 'you owe'} ₹{Math.abs(friend.balance)}
-                              </p>
-                              {friend.balance !== 0 && (
-                                <button
-                                  onClick={() => handleSettleBalance(friend.id)}
-                                  disabled={settlingFriendId === friend.id}
-                                  className={`mt-2 px-4 py-2 text-white text-sm rounded-lg transition-all duration-200 ${
-                                    settlingFriendId === friend.id
-                                      ? 'bg-gray-500 cursor-not-allowed'
-                                      : 'bg-gradient-to-r from-[#7B5CFF] to-[#9B7FFF] hover:shadow-lg'
-                                  }`}
-                                >
-                                  {settlingFriendId === friend.id ? 'Settling...' : `Settle Up ₹${Math.abs(friend.balance)}`}
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-
-                  {/* Recent Money Transfers */}
                   <div className="bg-white/5 rounded-xl p-4">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                      <CreditCard className="w-5 h-5 mr-2 text-purple-400" />
-                      Recent Money Transfers
+                      <Users className="w-5 h-5 mr-2 text-purple-400" />
+                      Friend List
                     </h3>
                     
                     <div className="space-y-4 max-h-96 overflow-y-auto">
-                      {transactionsLoading ? (
-                        <div className="text-gray-400 text-center py-4">Loading transactions...</div>
-                      ) : transactions.length === 0 ? (
+                      {loading ? (
+                        <div className="text-gray-400 text-center py-4">Loading friends...</div>
+                      ) : friends.length === 0 ? (
                         <div className="text-gray-400 text-center py-4">
-                          No transactions found.
+                          No friends found. Add friends first!
                         </div>
                       ) : (
-                        transactions.map((transaction) => (
-                          <div key={transaction.id} className="bg-white/5 rounded-xl p-3 hover:bg-white/10 transition-all duration-200">
+                        friends.map((friend) => (
+                          <div key={friend.id} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all duration-200">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3">
                                 <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full flex items-center justify-center text-white">
-                                  {transaction.friendName.charAt(0)}
+                                  {friend.avatar}
                                 </div>
                                 <div>
-                                  <h3 className="font-semibold text-white">{transaction.friendName}</h3>
-                                  <p className="text-sm text-gray-400">{transaction.description}</p>
+                                  <h3 className="font-semibold text-white">{friend.name}</h3>
+                                  <p className="text-sm text-gray-400">{friend.lastActivity}</p>
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className={`font-bold text-lg ${
-                                  transaction.type === 'GAVE' ? 'text-red-400' : 'text-green-400'
+                                <p className={`font-bold ${
+                                  friend.balance > 0 ? 'text-green-400' : friend.balance < 0 ? 'text-red-400' : 'text-gray-400'
                                 }`}>
-                                  {transaction.type === 'GAVE' ? '-' : '+'}₹{transaction.amount}
+                                  {friend.balance > 0 ? '+' : ''}₹{Math.abs(friend.balance)}
                                 </p>
-                                <p className="text-xs text-gray-500">
-                                  {new Date(transaction.createdAt).toLocaleDateString()}
-                                </p>
+                                <div className="flex space-x-2 mt-2">
+                                  {friend.balance !== 0 && (
+                                    <button
+                                      onClick={() => handleSettleBalance(friend.id)}
+                                      disabled={settlingFriendId === friend.id}
+                                      className={`px-3 py-1 text-white text-xs rounded-lg transition-all duration-200 ${
+                                        settlingFriendId === friend.id
+                                          ? 'bg-gray-500 cursor-not-allowed'
+                                          : 'bg-gradient-to-r from-[#7B5CFF] to-[#9B7FFF] hover:shadow-lg'
+                                      }`}
+                                    >
+                                      {settlingFriendId === friend.id ? 'Settling...' : 'Settle'}
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => handleSendReminder(friend.id)}
+                                    className="px-3 py-1 bg-white/10 text-white text-xs rounded-lg hover:bg-white/20 transition-all duration-200"
+                                  >
+                                    <Send className="w-3 h-3" />
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -409,6 +378,93 @@ export default function ManagementContent({ user }: ManagementContentProps) {
                       )}
                     </div>
                   </div>
+
+                  {/* Settlement Actions */}
+                  <div className="bg-white/5 rounded-xl p-4">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                      <BarChart3 className="w-5 h-5 mr-2 text-cyan-400" />
+                      Settlement Actions
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <button
+                        onClick={handleAutoSettle}
+                        className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:shadow-lg hover:shadow-green-500/25 transition-all duration-200 flex items-center justify-center space-x-2"
+                      >
+                        <Check className="w-5 h-5" />
+                        <span>Auto-Settle Balances</span>
+                      </button>
+                      
+                      <div className="border-t border-white/20 pt-4">
+                        <h4 className="text-white font-medium mb-3">Manual Settlement</h4>
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-3">
+                            <User className="w-5 h-5 text-gray-400" />
+                            <select className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white">
+                              <option>Select friend</option>
+                              {friends.map(friend => (
+                                <option key={friend.id} value={friend.id}>{friend.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <DollarSign className="w-5 h-5 text-gray-400" />
+                            <input
+                              type="number"
+                              placeholder="Amount"
+                              className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400"
+                            />
+                          </div>
+                          <button className="w-full py-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-lg hover:shadow-lg transition-all duration-200">
+                            Settle Balance
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Transactions Tab */}
+            {activeTab === 'transactions' && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-bold text-white mb-4">Recent Transactions</h2>
+                
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {transactionsLoading ? (
+                    <div className="text-gray-400 text-center py-4">Loading transactions...</div>
+                  ) : transactions.length === 0 ? (
+                    <div className="text-gray-400 text-center py-4">
+                      No transactions found.
+                    </div>
+                  ) : (
+                    transactions.map((transaction) => (
+                      <div key={transaction.id} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all duration-200">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full flex items-center justify-center text-white">
+                              {transaction.friendName.charAt(0)}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-white">{transaction.friendName}</h3>
+                              <p className="text-sm text-gray-400">{transaction.description}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className={`font-bold text-lg ${
+                              transaction.type === 'GAVE' ? 'text-red-400' : 'text-green-400'
+                            }`}>
+                              {transaction.type === 'GAVE' ? '-' : '+'}₹{transaction.amount}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {new Date(transaction.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             )}

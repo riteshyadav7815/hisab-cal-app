@@ -3,7 +3,6 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import MobileNavigation from "./MobileNavigation";
 import AddFriendModal from "./AddFriendModal";
-import ManagementModal from "./ManagementModal";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -11,7 +10,6 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
-  const [showManagementModal, setShowManagementModal] = useState(false);
 
   return (
     <>
@@ -21,7 +19,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <div className="w-64 bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10 flex-shrink-0 mr-6">
           <Sidebar 
             onAddFriendClick={() => setShowAddFriendModal(true)}
-            onManagementClick={() => setShowManagementModal(true)}
           />
         </div>
 
@@ -41,7 +38,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
         {/* Mobile Navigation - Fixed at bottom */}
         <MobileNavigation 
           onAddFriendClick={() => setShowAddFriendModal(true)}
-          onManagementClick={() => setShowManagementModal(true)}
         />
       </div>
 
@@ -49,10 +45,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <AddFriendModal 
         isOpen={showAddFriendModal} 
         onClose={() => setShowAddFriendModal(false)} 
-      />
-      <ManagementModal 
-        isOpen={showManagementModal} 
-        onClose={() => setShowManagementModal(false)} 
       />
     </>
   );

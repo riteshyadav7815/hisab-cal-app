@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppLayout from "./AppLayout";
 import Header from "./Header";
-import { ArrowLeftRight, ArrowUpCircle, ArrowDownCircle, Calculator, User, DollarSign, MessageSquare, Send } from "lucide-react";
+import { ArrowLeftRight, ArrowUpCircle, ArrowDownCircle, Calculator, User, DollarSign, MessageSquare, Send, CreditCard } from "lucide-react";
 import { refreshDashboard } from "./ExpenseOverview";
 import { cachedFetch } from "@/lib/api-cache";
 
@@ -25,6 +25,15 @@ interface Friend {
   email?: string;
 }
 
+interface Transaction {
+  id: string;
+  amount: number;
+  type: 'GAVE' | 'RECEIVED';
+  description: string;
+  createdAt: string;
+  friendName: string;
+}
+
 interface MoneyTransferContentProps {
   user: User;
 }
@@ -32,7 +41,9 @@ interface MoneyTransferContentProps {
 export default function MoneyTransferContent({ user }: MoneyTransferContentProps) {
   const router = useRouter();
   const [friends, setFriends] = useState<Friend[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [transactionsLoading, setTransactionsLoading] = useState(true);
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
   const [transferType, setTransferType] = useState<'give' | 'receive'>('give');
   const [amount, setAmount] = useState('');
@@ -46,6 +57,7 @@ export default function MoneyTransferContent({ user }: MoneyTransferContentProps
 
   useEffect(() => {
     fetchFriends();
+    fetchRecentTransactions();
   }, []);
 
   const fetchFriends = async () => {
@@ -71,6 +83,22 @@ export default function MoneyTransferContent({ user }: MoneyTransferContentProps
       console.error('Error fetching friends:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRecentTransactions = async () => {
+    try {
+      setTransactionsLoading(true);
+      const response = await fetch('/api/transactions/recent');
+      const data = await response.json();
+      
+      if (data.success) {
+        setTransactions(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    } finally {
+      setTransactionsLoading(false);
     }
   };
 
@@ -452,58 +480,122 @@ export default function MoneyTransferContent({ user }: MoneyTransferContentProps
               </form>
             </motion.div>
 
-            {/* Calculator */}
+            {/* Recent Transactions */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className={`bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20 ${
-                showCalculator ? 'block' : 'hidden lg:block'
-              }`}
+              className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20"
             >
               <h3 className="text-lg font-bold text-white mb-6 text-center flex items-center justify-center space-x-2">
-                <Calculator className="w-5 h-5 text-purple-400" />
-                <span>Smart Calculator</span>
+                <CreditCard className="w-5 h-5 text-purple-400" />
+                <span>Recent Transactions</span>
               </h3>
                 
-              {/* Calculator Display - Large Design */}
-              <div className="mb-6 p-6 bg-gradient-to-br from-black/70 via-gray-900/60 to-purple-900/40 rounded-xl border border-purple-500/30 shadow-lg">
-                <div className="text-right">
-                  <div className="text-purple-300 text-sm h-6 mb-3 font-medium">
-                    {calculatorOperation && previousValue && `${previousValue} ${calculatorOperation}`}
-                  </div>
-                  <div className="text-white text-3xl font-bold tracking-wider font-mono">
-                    ₹{calculatorDisplay}
-                  </div>
-                </div>
-              </div>
-
-              {/* Calculator Buttons - Large 4-Column Grid */}
-              <div className="space-y-3">
-                {calculatorButtons.map((row, rowIndex) => (
-                  <div key={rowIndex} className="grid grid-cols-4 gap-3">
-                    {row.map((btn) => (
-                      <button
-                        key={btn}
-                        onClick={() => handleCalculatorInput(btn)}
-                        className={`p-4 rounded-xl font-bold text-lg transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg border ${
-                          ['÷', '×', '-', '+', '='].includes(btn)
-                            ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white hover:shadow-blue-500/25 border-blue-500/40'
-                            : btn === 'C' || btn === '⌫' || btn === '%'
-                            ? 'bg-gradient-to-br from-gray-600 to-gray-700 text-white hover:shadow-gray-500/25 border-gray-500/40'
-                            : btn === 'Use'
-                            ? 'bg-gradient-to-br from-green-600 to-green-700 text-white hover:shadow-green-500/25 border-green-500/40 font-extrabold'
-                            : 'bg-gradient-to-br from-slate-700 to-slate-800 text-white hover:from-slate-600 hover:to-slate-700 border-slate-600/40'
-                        } ${btn === '0' ? 'col-span-2' : ''}`}
-                      >
-                        {btn}
-                      </button>
+              <div className="space-y-4 max-h-[500px] overflow-y-auto">
+                {transactionsLoading ? (
+                  // Loading skeleton
+                  <>
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="bg-white/5 rounded-xl p-4 animate-pulse">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-white/10 rounded-full"></div>
+                          <div className="flex-1">
+                            <div className="h-4 bg-white/10 rounded w-1/2 mb-2"></div>
+                            <div className="h-3 bg-white/10 rounded w-1/3"></div>
+                          </div>
+                        </div>
+                      </div>
                     ))}
+                  </>
+                ) : transactions.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="text-4xl mb-4">💸</div>
+                    <p className="text-gray-400">No transactions yet</p>
+                    <p className="text-gray-500 text-sm">Make your first money transfer</p>
                   </div>
-                ))}
+                ) : (
+                  transactions.map((transaction) => (
+                    <div key={transaction.id} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all duration-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full flex items-center justify-center text-white">
+                            {transaction.friendName.charAt(0)}
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-white">{transaction.friendName}</h3>
+                            <p className="text-sm text-gray-400">{transaction.description}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className={`font-bold text-lg ${
+                            transaction.type === 'GAVE' ? 'text-red-400' : 'text-green-400'
+                          }`}>
+                            {transaction.type === 'GAVE' ? '-' : '+'}₹{transaction.amount}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(transaction.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </motion.div>
           </div>
+
+          {/* Calculator */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className={`bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20 ${
+              showCalculator ? 'block' : 'hidden'
+            }`}
+          >
+            <h3 className="text-lg font-bold text-white mb-6 text-center flex items-center justify-center space-x-2">
+              <Calculator className="w-5 h-5 text-purple-400" />
+              <span>Smart Calculator</span>
+            </h3>
+              
+            {/* Calculator Display - Large Design */}
+            <div className="mb-6 p-6 bg-gradient-to-br from-black/70 via-gray-900/60 to-purple-900/40 rounded-xl border border-purple-500/30 shadow-lg">
+              <div className="text-right">
+                <div className="text-purple-300 text-sm h-6 mb-3 font-medium">
+                  {calculatorOperation && previousValue && `${previousValue} ${calculatorOperation}`}
+                </div>
+                <div className="text-white text-3xl font-bold tracking-wider font-mono">
+                  ₹{calculatorDisplay}
+                </div>
+              </div>
+            </div>
+
+            {/* Calculator Buttons - Large 4-Column Grid */}
+            <div className="space-y-3">
+              {calculatorButtons.map((row, rowIndex) => (
+                <div key={rowIndex} className="grid grid-cols-4 gap-3">
+                  {row.map((btn) => (
+                    <button
+                      key={btn}
+                      onClick={() => handleCalculatorInput(btn)}
+                      className={`p-4 rounded-xl font-bold text-lg transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg border ${
+                        ['÷', '×', '-', '+', '='].includes(btn)
+                          ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white hover:shadow-blue-500/25 border-blue-500/40'
+                          : btn === 'C' || btn === '⌫' || btn === '%'
+                          ? 'bg-gradient-to-br from-gray-600 to-gray-700 text-white hover:shadow-gray-500/25 border-gray-500/40'
+                          : btn === 'Use'
+                          ? 'bg-gradient-to-br from-green-600 to-green-700 text-white hover:shadow-green-500/25 border-green-500/40 font-extrabold'
+                          : 'bg-gradient-to-br from-slate-700 to-slate-800 text-white hover:from-slate-600 hover:to-slate-700 border-slate-600/40'
+                      } ${btn === '0' ? 'col-span-2' : ''}`}
+                    >
+                      {btn}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </motion.div>
       </div>
     </AppLayout>

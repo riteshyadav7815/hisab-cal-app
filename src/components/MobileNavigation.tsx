@@ -19,7 +19,6 @@ import { signOut } from "next-auth/react";
 
 interface MobileNavProps {
   onAddFriendClick?: () => void;
-  onManagementClick?: () => void;
 }
 
 const navigation = [
@@ -28,11 +27,11 @@ const navigation = [
   { name: "Add Expense", href: "/add-expense", icon: Plus, type: "link" },
   { name: "Money Transfer", href: "/transfer", icon: ArrowLeftRight, type: "link" },
   { name: "Reports", href: "/reports", icon: BarChart3, type: "link" },
-  { name: "Management", href: "/management", icon: Settings, type: "modal", modalType: "management" },
+  { name: "Management", href: "/management", icon: Settings, type: "link" },
   { name: "Settings", href: "/settings", icon: Settings, type: "link" },
 ];
 
-export default function MobileNavigation({ onAddFriendClick, onManagementClick }: MobileNavProps) {
+export default function MobileNavigation({ onAddFriendClick }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -40,8 +39,6 @@ export default function MobileNavigation({ onAddFriendClick, onManagementClick }
     if (item.type === "modal") {
       if (item.modalType === "addFriend" && onAddFriendClick) {
         onAddFriendClick();
-      } else if (item.modalType === "management" && onManagementClick) {
-        onManagementClick();
       }
     }
     setIsOpen(false); // Close menu after selection

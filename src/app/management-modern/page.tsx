@@ -1,14 +1,14 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import ManagementContent from "@/components/ManagementContent";
+import ManagementContentModern from "@/components/ManagementContentModern";
 
-export default async function Management() {
+export default async function ManagementModern() {
   const session = await getServerSession(authOptions);
   
   if (!session) {
     redirect("/");
   }
 
-  return <ManagementContent user={session.user} />;
+  return <ManagementContentModern user={session.user} />;
 }
