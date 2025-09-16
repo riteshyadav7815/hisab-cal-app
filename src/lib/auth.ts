@@ -86,6 +86,13 @@ const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    }
   },
   events: {
     async signOut() {
@@ -93,8 +100,8 @@ const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/", // Don't redirect to separate sign-in page
-    error: "/", // Redirect to home page on auth errors
+    signIn: "/auth/signin", // Redirect to separate sign-in page
+    error: "/auth/signin", // Redirect to sign-in page on auth errors
     signOut: "/", // Redirect to home page after sign out
   },
 };

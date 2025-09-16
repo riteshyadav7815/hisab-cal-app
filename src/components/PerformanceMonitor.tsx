@@ -56,14 +56,26 @@ export default function PerformanceMonitor() {
   }, []);
 
   const getStatusIcon = (time: string) => {
+    // Add null/undefined check and ensure time is a string
+    if (!time || typeof time !== 'string') {
+      return <XCircle className="w-5 h-5 text-red-400" />;
+    }
+    
     const ms = parseInt(time.replace('ms', ''));
+    if (isNaN(ms)) return <XCircle className="w-5 h-5 text-red-400" />;
     if (ms <= 100) return <CheckCircle className="w-5 h-5 text-green-400" />;
     if (ms <= 500) return <AlertTriangle className="w-5 h-5 text-yellow-400" />;
     return <XCircle className="w-5 h-5 text-red-400" />;
   };
 
   const getStatusColor = (time: string) => {
+    // Add null/undefined check and ensure time is a string
+    if (!time || typeof time !== 'string') {
+      return 'text-red-400';
+    }
+    
     const ms = parseInt(time.replace('ms', ''));
+    if (isNaN(ms)) return 'text-red-400';
     if (ms <= 100) return 'text-green-400';
     if (ms <= 500) return 'text-yellow-400';
     return 'text-red-400';
@@ -130,7 +142,7 @@ export default function PerformanceMonitor() {
                   <span className="text-gray-300 text-lg">Total Response</span>
                 </div>
                 <span className={`font-bold text-xl ${getStatusColor(metrics.performance.totalTime)}`}>
-                  {metrics.performance.totalTime}
+                  {metrics.performance.totalTime || 'N/A'}
                 </span>
               </div>
               
@@ -140,7 +152,7 @@ export default function PerformanceMonitor() {
                   <span className="text-gray-300 text-lg">Authentication</span>
                 </div>
                 <span className={`font-bold text-xl ${getStatusColor(metrics.performance.authTime)}`}>
-                  {metrics.performance.authTime}
+                  {metrics.performance.authTime || 'N/A'}
                 </span>
               </div>
               
@@ -150,7 +162,7 @@ export default function PerformanceMonitor() {
                   <span className="text-gray-300 text-lg">DB Connection</span>
                 </div>
                 <span className={`font-bold text-xl ${getStatusColor(metrics.performance.dbConnectionTime)}`}>
-                  {metrics.performance.dbConnectionTime}
+                  {metrics.performance.dbConnectionTime || 'N/A'}
                 </span>
               </div>
               
@@ -160,7 +172,7 @@ export default function PerformanceMonitor() {
                   <span className="text-gray-300 text-lg">Friends Query</span>
                 </div>
                 <span className={`font-bold text-xl ${getStatusColor(metrics.performance.friendsQueryTime)}`}>
-                  {metrics.performance.friendsQueryTime}
+                  {metrics.performance.friendsQueryTime || 'N/A'}
                 </span>
               </div>
               
@@ -170,7 +182,7 @@ export default function PerformanceMonitor() {
                   <span className="text-gray-300 text-lg">Friendships Query</span>
                 </div>
                 <span className={`font-bold text-xl ${getStatusColor(metrics.performance.friendshipsQueryTime)}`}>
-                  {metrics.performance.friendshipsQueryTime}
+                  {metrics.performance.friendshipsQueryTime || 'N/A'}
                 </span>
               </div>
             </div>

@@ -39,11 +39,54 @@ html {
   box-sizing: border-box;
 }
 
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  /* Reduce padding on mobile */
+  .p-6 {
+    padding: 1rem;
+  }
+  
+  /* Adjust font sizes for better mobile readability */
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+  
+  /* Ensure modals are mobile-friendly */
+  .modal-container {
+    margin: 1rem;
+    max-height: 90vh;
+  }
+}
+
 /* Maintain consistent padding and margins */
 .container {
   width: 100%;
   margin-right: auto;
   margin-left: auto;
-  padding-right: 1.5rem;
-  padding-left: 1.5rem;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+/* Scrollbar styling for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(123, 92, 255, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(123, 92, 255, 0.8);
 }

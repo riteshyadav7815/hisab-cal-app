@@ -27,7 +27,7 @@ export default memo(function DashboardContent({ user }: DashboardContentProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 h-full"
+        className="bg-white/5 backdrop-blur-lg rounded-2xl p-4 md:p-6 border border-white/10 h-full"
       >
         {/* Header */}
         <Header user={user} />

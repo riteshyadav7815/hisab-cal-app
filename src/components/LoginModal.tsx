@@ -17,14 +17,16 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState(""); // For signup
+  const [error, setError] = useState<string | null>(null);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     startTransition(async () => {
       try {
         console.log('Attempting signup...', { name, username, email });
         const apiUrl = process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:3000/api/signup'
+          ? 'http://localhost:3003/api/signup' // Updated to match current port
           : '/api/signup';
         
         const res = await fetch(apiUrl, {
@@ -52,13 +54,16 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
         
       } catch (error) {
         console.error('Signup error:', error);
-        alert(`Signup failed: ${error instanceof Error ? error.message : 'Network error'}`);
+        const errorMessage = error instanceof Error ? error.message : 'Network error';
+        setError(`Signup failed: ${errorMessage}`);
+        alert(`Signup failed: ${errorMessage}`);
       }
     });
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     startTransition(async () => {
       try {
         console.log('Attempting login...', { username });
@@ -77,11 +82,14 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
           const errorMsg = result?.error === 'CredentialsSignin' 
             ? 'Invalid username or password' 
             : result?.error || 'Login failed';
+          setError(`Login failed: ${errorMsg}`);
           alert(`Login failed: ${errorMsg}`);
         }
       } catch (error) {
         console.error('Login error:', error);
-        alert(`Login failed: ${error instanceof Error ? error.message : 'Network error'}`);
+        const errorMessage = error instanceof Error ? error.message : 'Network error';
+        setError(`Login failed: ${errorMessage}`);
+        alert(`Login failed: ${errorMessage}`);
       }
     });
   };
@@ -105,30 +113,36 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-md backdrop-blur-xl bg-black/90 border border-white/20 rounded-3xl shadow-2xl"
+          className="relative w-full max-w-md backdrop-blur-xl bg-black/90 border border-white/20 rounded-3xl shadow-2xl overflow-y-auto max-h-[90vh]"
         >
           {/* Close Button - only show if closing is allowed */}
           {allowClose && (
             <button
               onClick={onClose}
-              className="absolute top-6 right-6 p-3 text-gray-400 hover:text-white transition-colors rounded-xl hover:bg-white/10"
+              className="absolute top-6 right-6 p-3 text-gray-400 hover:text-white transition-colors rounded-xl hover:bg-white/10 z-10"
             >
               <X className="w-6 h-6" />
             </button>
           )}
 
-          <div className="p-10">
+          <div className="p-8">
             <motion.h1 
               key={mode}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-2xl md:text-3xl font-semibold tracking-tight text-white"
+              className="text-2xl md:text-3xl font-semibold tracking-tight text-white text-center"
             >
               {mode === "login" ? "Welcome back" : "Create your account"}
             </motion.h1>
-            <p className="mt-1 text-sm text-gray-300">
+            <p className="mt-1 text-sm text-gray-300 text-center">
               {mode === "login" ? "Log in to continue" : "Sign up to get started"}
             </p>
+
+            {error && (
+              <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-200 text-sm">
+                {error}
+              </div>
+            )}
 
             <form
               className="mt-6 grid gap-4"
@@ -188,6 +202,7 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
+                  minLength={6}
                 />
               </div>
               <motion.button
@@ -231,18 +246,18 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
 
               <div className="mt-6 grid grid-cols-2 gap-3">
                 <motion.button
-                  onClick={() => signIn("google", { redirect: false })}
+                  onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full py-2 px-4 border border-white/20 rounded-xl bg-white/10 text-sm font-medium text-gray-300 hover:bg-white/20 transition-all"
+                  className="w-full py-3 px-4 border border-white/20 rounded-xl bg-white/10 text-sm font-medium text-gray-300 hover:bg-white/20 transition-all"
                 >
                   Google
                 </motion.button>
                 <motion.button
-                  onClick={() => signIn("facebook", { redirect: false })}
+                  onClick={() => signIn("facebook", { callbackUrl: "/dashboard" })}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full py-2 px-4 border border-white/20 rounded-xl bg-white/10 text-sm font-medium text-gray-300 hover:bg-white/20 transition-all"
+                  className="w-full py-3 px-4 border border-white/20 rounded-xl bg-white/10 text-sm font-medium text-gray-300 hover:bg-white/20 transition-all"
                 >
                   Facebook
                 </motion.button>

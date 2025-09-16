@@ -37,7 +37,7 @@ export default function Sidebar({ onAddFriendClick, onManagementClick }: Sidebar
   return (
     <aside 
       data-testid="sidebar" 
-      className="w-64 bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10 flex flex-col"
+      className="w-full bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10 flex flex-col"
     >
       {/* Logo/Profile Avatar */}
       <div className="flex items-center space-x-3 p-4 border-b border-white/10">
