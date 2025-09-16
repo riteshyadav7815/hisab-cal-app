@@ -106,13 +106,6 @@ export default function DashboardWrapper() {
     return <DashboardContent user={user} />;
   }
 
-  // Fallback - show loading
-  return (
-    <div className="relative min-h-screen bg-gradient-to-br from-[#1A1735] via-[#2D1B69] to-[#1A1735]">
-      <ThreeBackground />
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-2xl font-semibold">Loading dashboard...</div>
-      </div>
-    </div>
-  );
+  // Fallback - show dashboard without user data
+  return <DashboardContent />;
 }

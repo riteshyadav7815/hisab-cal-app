@@ -1,5 +1,4 @@
 "use client";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -66,13 +65,7 @@ export default function Sidebar({ onAddFriendClick }: SidebarProps) {
                 }`} />
                 <span className="font-medium">{item.name}</span>
                 {isActive && (
-                  <motion.div
-                    layoutId="activeIndicator"
-                    className="ml-auto w-2 h-2 bg-white rounded-full"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  />
+                  <div className="ml-auto w-2 h-2 bg-white rounded-full" />
                 )}
               </button>
             );
@@ -93,13 +86,7 @@ export default function Sidebar({ onAddFriendClick }: SidebarProps) {
               }`} />
               <span className="font-medium">{item.name}</span>
               {isActive && (
-                <motion.div
-                  layoutId="activeIndicator"
-                  className="ml-auto w-2 h-2 bg-white rounded-full"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                />
+                <div className="ml-auto w-2 h-2 bg-white rounded-full" />
               )}
             </Link>
           );

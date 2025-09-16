@@ -23,8 +23,17 @@ async function getReportsHandler(req: NextRequest) {
     const userId = session.user.id
     const { searchParams } = new URL(req.url)
     const period = searchParams.get('period') || 'monthly'
-    const startDate = searchParams.get('start') ? new Date(searchParams.get('start')!) : new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-    const endDate = searchParams.get('end') ? new Date(searchParams.get('end')!) : new Date()
+    
+    // Safely parse dates with fallbacks
+    let startDate: Date, endDate: Date;
+    try {
+      startDate = searchParams.get('start') ? new Date(searchParams.get('start')!) : new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+      endDate = searchParams.get('end') ? new Date(searchParams.get('end')!) : new Date()
+    } catch (dateError) {
+      console.error('Date parsing error:', dateError)
+      startDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+      endDate = new Date()
+    }
 
     // Current month dates for monthly stats
     const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
@@ -116,9 +125,13 @@ async function getReportsHandler(req: NextRequest) {
     // Process trends data (group by month from daily data)
     const monthlyTrendsMap = new Map<string, number>()
     recentTrends.forEach(trend => {
-      const monthKey = trend.date.toISOString().substring(0, 7) // YYYY-MM format
-      const currentAmount = monthlyTrendsMap.get(monthKey) || 0
-      monthlyTrendsMap.set(monthKey, currentAmount + (trend._sum.amount || 0))
+      try {
+        const monthKey = trend.date.toISOString().substring(0, 7) // YYYY-MM format
+        const currentAmount = monthlyTrendsMap.get(monthKey) || 0
+        monthlyTrendsMap.set(monthKey, currentAmount + (trend._sum.amount || 0))
+      } catch (trendError) {
+        console.error('Error processing trend data:', trendError)
+      }
     })
     
     const expenseTrends = Array.from(monthlyTrendsMap.entries())
@@ -168,11 +181,9 @@ async function getReportsHandler(req: NextRequest) {
       }
     )
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Reports API error:', error)
-    }
+    console.error('Reports API error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     )
   }

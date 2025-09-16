@@ -1,5 +1,4 @@
 "use client";
-import { motion } from "framer-motion";
 import { useState, useEffect, Suspense } from "react";
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Loader2 } from "lucide-react";
@@ -32,10 +31,7 @@ function ReportsLoading() {
 // Summary cards component for better code splitting
 function SummaryCards({ monthlyStats }: { monthlyStats: ReportData['monthlyStats'] }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1 }}
+    <div
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
     >
       {[
@@ -44,13 +40,9 @@ function SummaryCards({ monthlyStats }: { monthlyStats: ReportData['monthlyStats
         { label: 'Biggest Spend', value: `₹${monthlyStats.biggestSpend.toLocaleString()}`, icon: '🎯', color: 'from-orange-500 to-red-500' },
         { label: 'Savings vs Target', value: `${monthlyStats.savingsVsTarget}%`, icon: '💡', color: 'from-green-500 to-emerald-500' }
       ].map((stat, index) => (
-        <motion.div
+        <div
           key={stat.label}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1 }}
-          whileHover={{ scale: 1.02 }}
-          className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20"
+          className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20 hover:scale-105 transition-transform duration-200"
         >
           <div className="flex items-center justify-between mb-4">
             <div className={`p-3 rounded-xl bg-gradient-to-r ${stat.color}`}>
@@ -59,9 +51,9 @@ function SummaryCards({ monthlyStats }: { monthlyStats: ReportData['monthlyStats
           </div>
           <h3 className="text-gray-400 text-sm font-medium mb-1">{stat.label}</h3>
           <p className="text-2xl font-bold text-white">{stat.value}</p>
-        </motion.div>
+        </div>
       ))}
-    </motion.div>
+    </div>
   );
 }
 
@@ -181,9 +173,7 @@ export default function ReportsContent() {
 
       <div className="relative max-w-7xl mx-auto p-6">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
           className="mb-8"
         >
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
@@ -191,30 +181,26 @@ export default function ReportsContent() {
             Your Financial Reports
           </h1>
           <p className="text-gray-300">Analyze your spending patterns and insights</p>
-        </motion.div>
+        </div>
 
         {/* Date Filter */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
           className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20 mb-8"
         >
           <div className="flex flex-wrap gap-4 items-center justify-between">
             <div className="flex gap-3">
               {['weekly', 'monthly', 'yearly', 'custom'].map((period) => (
-                <motion.button
+                <button
                   key={period}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedPeriod(period)}
                   className={`px-4 py-2 rounded-xl transition-all duration-300 ${
                     selectedPeriod === period
                       ? 'bg-gradient-to-r from-[#7B5CFF] to-[#9B7FFF] text-white'
                       : 'bg-white/10 text-gray-300 hover:bg-white/20'
-                  }`}
+                  } hover:scale-105 active:scale-95 transition-transform`}
                 >
                   {period.charAt(0).toUpperCase() + period.slice(1)}
-                </motion.button>
+                </button>
               ))}
             </div>
             
@@ -235,7 +221,7 @@ export default function ReportsContent() {
               </div>
             )}
           </div>
-        </motion.div>
+        </div>
 
         {/* Summary Cards */}
         <Suspense fallback={<div className="h-32 bg-white/5 animate-pulse rounded-2xl"></div>}>
@@ -245,10 +231,7 @@ export default function ReportsContent() {
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Category Breakdown */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+          <div
             className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20"
           >
             <h3 className="text-xl font-bold text-white mb-4">Category Breakdown</h3>
@@ -284,13 +267,10 @@ export default function ReportsContent() {
                 />
               </PieChart>
             </ResponsiveContainer>
-          </motion.div>
+          </div>
 
           {/* Expense Trends */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+          <div
             className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20"
           >
             <h3 className="text-xl font-bold text-white mb-4">Expense Trends</h3>
@@ -329,13 +309,10 @@ export default function ReportsContent() {
                 />
               </LineChart>
             </ResponsiveContainer>
-          </motion.div>
+          </div>
 
           {/* Top 5 Biggest Spends */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+          <div
             className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20"
           >
             <h3 className="text-xl font-bold text-white mb-4">Top 5 Biggest Spends</h3>
@@ -350,14 +327,11 @@ export default function ReportsContent() {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Friend Reports */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+        <div
           className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
         >
           <div className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
@@ -388,38 +362,32 @@ export default function ReportsContent() {
           <div className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
             <h3 className="text-xl font-bold text-white mb-4">Export & Share</h3>
             <div className="space-y-4">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <button
                 onClick={() => handleExport('pdf')}
-                className="w-full p-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                className="w-full p-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-transform"
               >
                 <span>📄</span>
                 Download PDF Report
-              </motion.button>
+              </button>
               
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <button
                 onClick={() => handleExport('excel')}
-                className="w-full p-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                className="w-full p-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-transform"
               >
                 <span>📊</span>
                 Download Excel Report
-              </motion.button>
+              </button>
               
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <button
                 onClick={generateShareLink}
-                className="w-full p-4 bg-gradient-to-r from-[#7B5CFF] to-[#9B7FFF] text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                className="w-full p-4 bg-gradient-to-r from-[#7B5CFF] to-[#9B7FFF] text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-transform"
               >
                 <span>🔗</span>
                 Share Report Link
-              </motion.button>
+              </button>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

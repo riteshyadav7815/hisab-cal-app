@@ -17,7 +17,7 @@ interface User {
 }
 
 interface DashboardContentProps {
-  user: User;
+  user?: User;
 }
 
 export default memo(function DashboardContent({ user }: DashboardContentProps) {
@@ -30,7 +30,7 @@ export default memo(function DashboardContent({ user }: DashboardContentProps) {
         className="bg-white/5 backdrop-blur-lg rounded-2xl p-4 md:p-6 border border-white/10 h-full"
       >
         {/* Header */}
-        <Header user={user} />
+        {user && <Header user={user} />}
 
         <div className="space-y-6 mt-6">
           {/* Expense Summary Cards */}
