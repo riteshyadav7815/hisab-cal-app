@@ -563,21 +563,8 @@ export default function ManagementContent({ user }: ManagementContentProps) {
           </div>
 
           <div className="relative max-w-7xl mx-auto">
-            {/* Page Header */}
-            <div className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold text-white flex items-center space-x-3">
-                    <Users className="w-8 h-8 text-purple-400" />
-                    <span>Management Center</span>
-                  </h1>
-                  <p className="text-gray-400 mt-2">Manage your finances and settings</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Tab Navigation */}
-            <div className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-4 border border-white/20 mt-6">
+            {/* Tab Navigation - Moved to top for mobile */}
+            <div className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-4 border border-white/20">
               <div className="flex space-x-1 overflow-x-auto">
                 <button
                   onClick={() => setActiveTab('friends')}
