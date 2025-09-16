@@ -1,12 +1,5 @@
 @import 'tailwindcss';
 
-@theme {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
 :root {
   --background: #1A1625; /* Dark purple background */
   --foreground: #E0E0E0; /* Light gray text */
@@ -22,12 +15,12 @@ body {
   overscroll-behavior: none;
 }
 
-/* Ensure proper mobile viewport handling */
+/* Ensure proper viewport handling */
 @viewport {
   width: device-width;
   zoom: 1.0;
   min-zoom: 1.0;
-  max-zoom: 5.0;
+  max-zoom: 1.0;
 }
 
 /* Improve touch targets for mobile */
@@ -39,4 +32,18 @@ button, a, input, select, textarea {
 /* Prevent text size adjustment on orientation change in iOS */
 html {
   -webkit-text-size-adjust: 100%;
+}
+
+/* Ensure consistent layout across all devices */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Maintain consistent padding and margins */
+.container {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
 }
