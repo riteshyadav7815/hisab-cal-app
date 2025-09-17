@@ -168,6 +168,10 @@ const nextConfig: NextConfig = {
               conditionals: true,
               // Optimize booleans
               booleans: true,
+              // Drop unused functions
+              unused: true,
+              // Drop unreachable code
+              dead_code: true,
             },
             mangle: true,
             safari10: true,

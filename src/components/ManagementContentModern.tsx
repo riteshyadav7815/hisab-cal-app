@@ -4,10 +4,27 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppLayout from "./AppLayout";
 import Header from "./Header";
-import { Users, BarChart3, CreditCard, Check, X, Send, ArrowDownCircle, ArrowUpCircle, Calculator, User, DollarSign, MessageSquare, Shield, FileText, Settings } from "lucide-react";
+import dynamic from "next/dynamic";
 import { refreshDashboard } from "./ExpenseOverview";
 import { cachedFetch, apiCache } from "@/lib/api-cache";
 import { runInWorker } from "@/lib/web-worker-manager";
+
+// Dynamically import icons only when needed to reduce bundle size
+const Users = dynamic(() => import("lucide-react").then((mod) => mod.Users), { ssr: false });
+const BarChart3 = dynamic(() => import("lucide-react").then((mod) => mod.BarChart3), { ssr: false });
+const CreditCard = dynamic(() => import("lucide-react").then((mod) => mod.CreditCard), { ssr: false });
+const Check = dynamic(() => import("lucide-react").then((mod) => mod.Check), { ssr: false });
+const X = dynamic(() => import("lucide-react").then((mod) => mod.X), { ssr: false });
+const Send = dynamic(() => import("lucide-react").then((mod) => mod.Send), { ssr: false });
+const ArrowDownCircle = dynamic(() => import("lucide-react").then((mod) => mod.ArrowDownCircle), { ssr: false });
+const ArrowUpCircle = dynamic(() => import("lucide-react").then((mod) => mod.ArrowUpCircle), { ssr: false });
+const Calculator = dynamic(() => import("lucide-react").then((mod) => mod.Calculator), { ssr: false });
+const User = dynamic(() => import("lucide-react").then((mod) => mod.User), { ssr: false });
+const DollarSign = dynamic(() => import("lucide-react").then((mod) => mod.DollarSign), { ssr: false });
+const MessageSquare = dynamic(() => import("lucide-react").then((mod) => mod.MessageSquare), { ssr: false });
+const Shield = dynamic(() => import("lucide-react").then((mod) => mod.Shield), { ssr: false });
+const FileText = dynamic(() => import("lucide-react").then((mod) => mod.FileText), { ssr: false });
+const Settings = dynamic(() => import("lucide-react").then((mod) => mod.Settings), { ssr: false });
 
 interface User {
   id: string;
@@ -53,11 +70,11 @@ interface ManagementContentModernProps {
   user: User;
 }
 
-// Heavy computation function for processing friends data
+// Heavy computation function for processing friends data - reduced computation
 const processFriendsData = (friends: any[]) => {
-  // Simulate heavy computation
+  // Simulate lighter computation to reduce main thread blocking
   let result = 0;
-  for (let i = 0; i < 500000; i++) {
+  for (let i = 0; i < 100000; i++) { // Reduced from 500000 to 100000
     result += Math.sqrt(i) * Math.cos(i);
   }
   
@@ -69,11 +86,11 @@ const processFriendsData = (friends: any[]) => {
   }));
 };
 
-// Heavy computation function for processing transactions
+// Heavy computation function for processing transactions - reduced computation
 const processTransactionsData = (transactions: any[]) => {
-  // Simulate heavy computation
+  // Simulate lighter computation to reduce main thread blocking
   let result = 0;
-  for (let i = 0; i < 300000; i++) {
+  for (let i = 0; i < 50000; i++) { // Reduced from 300000 to 50000
     result += Math.log(i + 1) * Math.tan(i);
   }
   
@@ -124,7 +141,7 @@ export default function ManagementContentModern({ user }: ManagementContentModer
       
       if (data.success && data.data) {
         // Process friends data in a Web Worker for heavy computations
-        const processedFriends = await runInWorker(processFriendsData, data.data);
+        const processedFriends = await runInWorker(processFriendsData, data.data, 3000); // 3s timeout
         
         setFriends(processedFriends.map((friend: any) => ({
           id: friend.id,
@@ -151,7 +168,7 @@ export default function ManagementContentModern({ user }: ManagementContentModer
       
       if (data.success) {
         // Process transactions data in a Web Worker for heavy computations
-        const processedTransactions = await runInWorker(processTransactionsData, data.data);
+        const processedTransactions = await runInWorker(processTransactionsData, data.data, 3000); // 3s timeout
         
         setTransactions(processedTransactions.map((transaction: any) => ({
           id: transaction.id,
@@ -360,7 +377,10 @@ export default function ManagementContentModern({ user }: ManagementContentModer
             {/* Friends Tab */}
             {activeTab === 'friends' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-bold text-white mb-4">Manage Friends</h2>
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+                  <Users className="w-5 h-5 mr-2 text-purple-400" />
+                  Manage Friends
+                </h2>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Friends List */}
@@ -401,20 +421,16 @@ export default function ManagementContentModern({ user }: ManagementContentModer
                                     <button
                                       onClick={() => handleSettleBalance(friend.id)}
                                       disabled={settlingFriendId === friend.id}
-                                      className={`px-3 py-1 text-white text-xs rounded-lg transition-all duration-200 ${
-                                        settlingFriendId === friend.id
-                                          ? 'bg-gray-500 cursor-not-allowed'
-                                          : 'bg-gradient-to-r from-[#7B5CFF] to-[#9B7FFF] hover:shadow-lg'
-                                      }`}
+                                      className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg text-sm hover:shadow-lg hover:shadow-green-500/25 transition-all duration-200 disabled:opacity-50"
                                     >
                                       {settlingFriendId === friend.id ? 'Settling...' : 'Settle'}
                                     </button>
                                   )}
                                   <button
                                     onClick={() => handleSendReminder(friend.id)}
-                                    className="px-3 py-1 bg-white/10 text-white text-xs rounded-lg hover:bg-white/20 transition-all duration-200"
+                                    className="px-3 py-1 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-lg text-sm hover:shadow-lg transition-all duration-200"
                                   >
-                                    <Send className="w-3 h-3" />
+                                    <Send className="w-4 h-4" />
                                   </button>
                                 </div>
                               </div>
@@ -425,45 +441,76 @@ export default function ManagementContentModern({ user }: ManagementContentModer
                     </div>
                   </div>
 
-                  {/* Settlement Actions */}
-                  <div className="bg-white/5 rounded-xl p-4">
-                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                      <BarChart3 className="w-5 h-5 mr-2 text-cyan-400" />
-                      Settlement Actions
-                    </h3>
-                    
-                    <div className="space-y-4">
-                      <button
-                        onClick={handleAutoSettle}
-                        className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:shadow-lg hover:shadow-green-500/25 transition-all duration-200 flex items-center justify-center space-x-2"
-                      >
-                        <Check className="w-5 h-5" />
-                        <span>Auto-Settle Balances</span>
-                      </button>
+                  {/* Quick Actions */}
+                  <div className="space-y-6">
+                    <div className="bg-white/5 rounded-xl p-4">
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                        <Calculator className="w-5 h-5 mr-2 text-purple-400" />
+                        Quick Actions
+                      </h3>
                       
-                      <div className="border-t border-white/20 pt-4">
-                        <h4 className="text-white font-medium mb-3">Manual Settlement</h4>
-                        <div className="space-y-3">
-                          <div className="flex items-center space-x-3">
-                            <User className="w-5 h-5 text-gray-400" />
-                            <select className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white">
-                              <option>Select friend</option>
-                              {friends.map(friend => (
-                                <option key={friend.id} value={friend.id}>{friend.name}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div className="flex items-center space-x-3">
-                            <DollarSign className="w-5 h-5 text-gray-400" />
-                            <input
-                              type="number"
-                              placeholder="Amount"
-                              className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400"
-                            />
-                          </div>
-                          <button className="w-full py-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-lg hover:shadow-lg transition-all duration-200">
-                            Settle Balance
-                          </button>
+                      <div className="space-y-4">
+                        <button
+                          onClick={handleAutoSettle}
+                          className="w-full py-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-xl hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2"
+                        >
+                          <DollarSign className="w-5 h-5" />
+                          <span>Auto-settle All Balances</span>
+                        </button>
+                        
+                        <div className="bg-white/5 rounded-lg p-4">
+                          <h4 className="font-semibold text-white mb-2">Settlement Tips</h4>
+                          <ul className="text-sm text-gray-400 space-y-1">
+                            <li className="flex items-start">
+                              <Check className="w-4 h-4 text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                              <span>Settle balances regularly to maintain good relationships</span>
+                            </li>
+                            <li className="flex items-start">
+                              <Check className="w-4 h-4 text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                              <span>Use the auto-settle feature for quick resolution</span>
+                            </li>
+                            <li className="flex items-start">
+                              <Check className="w-4 h-4 text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                              <span>Send reminders for overdue balances</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Balance Summary */}
+                    <div className="bg-white/5 rounded-xl p-4">
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                        <BarChart3 className="w-5 h-5 mr-2 text-purple-400" />
+                        Balance Summary
+                      </h3>
+                      
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-400">Total Friends</span>
+                          <span className="font-semibold text-white">{friends.length}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-400">Balances Owed to You</span>
+                          <span className="font-semibold text-green-400">
+                            ₹{friends.filter(f => f.balance > 0).reduce((sum, f) => sum + f.balance, 0)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-400">Balances You Owe</span>
+                          <span className="font-semibold text-red-400">
+                            ₹{Math.abs(friends.filter(f => f.balance < 0).reduce((sum, f) => sum + f.balance, 0))}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center pt-2 border-t border-white/10">
+                          <span className="text-gray-400">Net Position</span>
+                          <span className={`font-semibold ${
+                            friends.filter(f => f.balance > 0).reduce((sum, f) => sum + f.balance, 0) > 
+                            Math.abs(friends.filter(f => f.balance < 0).reduce((sum, f) => sum + f.balance, 0))
+                              ? 'text-green-400' : 'text-red-400'
+                          }`}>
+                            ₹{friends.reduce((sum, f) => sum + f.balance, 0)}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -475,41 +522,51 @@ export default function ManagementContentModern({ user }: ManagementContentModer
             {/* Transactions Tab */}
             {activeTab === 'transactions' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-bold text-white mb-4">Recent Transactions</h2>
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+                  <CreditCard className="w-5 h-5 mr-2 text-purple-400" />
+                  Recent Transactions
+                </h2>
                 
-                <div className="space-y-4 max-h-96 overflow-y-auto">
+                <div className="bg-white/5 rounded-xl p-4">
                   {transactionsLoading ? (
                     <div className="text-gray-400 text-center py-4">Loading transactions...</div>
                   ) : transactions.length === 0 ? (
                     <div className="text-gray-400 text-center py-4">
-                      No transactions found.
+                      No recent transactions found.
                     </div>
                   ) : (
-                    transactions.map((transaction) => (
-                      <div key={transaction.id} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all duration-200">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full flex items-center justify-center text-white">
-                              {transaction.friendName.charAt(0)}
+                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                      {transactions.map((transaction) => (
+                        <div key={transaction.id} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all duration-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className={`p-2 rounded-full ${
+                                transaction.type === 'GAVE' 
+                                  ? 'bg-red-500/20 text-red-400' 
+                                  : 'bg-green-500/20 text-green-400'
+                              }`}>
+                                {transaction.type === 'GAVE' ? (
+                                  <ArrowUpCircle className="w-5 h-5" />
+                                ) : (
+                                  <ArrowDownCircle className="w-5 h-5" />
+                                )}
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-white">{transaction.description}</h3>
+                                <p className="text-sm text-gray-400">
+                                  {new Date(transaction.createdAt).toLocaleDateString()} • {transaction.friendName}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <h3 className="font-semibold text-white">{transaction.friendName}</h3>
-                              <p className="text-sm text-gray-400">{transaction.description}</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className={`font-bold text-lg ${
+                            <div className={`text-right font-bold ${
                               transaction.type === 'GAVE' ? 'text-red-400' : 'text-green-400'
                             }`}>
                               {transaction.type === 'GAVE' ? '-' : '+'}₹{transaction.amount}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {new Date(transaction.createdAt).toLocaleDateString()}
-                            </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
@@ -518,18 +575,22 @@ export default function ManagementContentModern({ user }: ManagementContentModer
             {/* Categories Tab */}
             {activeTab === 'categories' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-bold text-white mb-4">Expense Categories</h2>
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+                  <FileText className="w-5 h-5 mr-2 text-purple-400" />
+                  Expense Categories
+                </h2>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-white/5 rounded-xl p-4">
                     <h3 className="text-lg font-semibold text-white mb-4">Add New Category</h3>
+                    
                     <div className="flex space-x-2">
                       <input
                         type="text"
                         value={newCategory}
                         onChange={(e) => setNewCategory(e.target.value)}
-                        placeholder="Category name"
-                        className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400"
+                        placeholder="Enter category name"
+                        className="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
                       />
                       <button
                         onClick={handleAddCategory}
@@ -539,13 +600,14 @@ export default function ManagementContentModern({ user }: ManagementContentModer
                       </button>
                     </div>
                   </div>
-                  
+
                   <div className="bg-white/5 rounded-xl p-4">
-                    <h3 className="text-lg font-semibold text-white mb-4">Existing Categories</h3>
+                    <h3 className="text-lg font-semibold text-white mb-4">Current Categories</h3>
+                    
                     <div className="flex flex-wrap gap-2">
                       {settingsData.categories.map((category) => (
                         <div key={category} className="flex items-center bg-white/10 rounded-lg px-3 py-1">
-                          <span className="text-white">{category}</span>
+                          <span className="text-white text-sm">{category}</span>
                           <button
                             onClick={() => handleRemoveCategory(category)}
                             className="ml-2 text-gray-400 hover:text-red-400"
@@ -563,53 +625,61 @@ export default function ManagementContentModern({ user }: ManagementContentModer
             {/* Preferences Tab */}
             {activeTab === 'preferences' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-bold text-white mb-4">Preferences</h2>
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+                  <Settings className="w-5 h-5 mr-2 text-purple-400" />
+                  Preferences
+                </h2>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-white/5 rounded-xl p-4">
-                    <h3 className="text-lg font-semibold text-white mb-4">Display Settings</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm text-gray-300 mb-2">Currency</label>
-                        <select
-                          value={settingsData.preferences.currency}
-                          onChange={(e) => handlePreferenceChange('currency', e.target.value)}
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                        >
-                          <option value="INR">Indian Rupee (₹)</option>
-                          <option value="USD">US Dollar ($)</option>
-                          <option value="EUR">Euro (€)</option>
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm text-gray-300 mb-2">Date Format</label>
-                        <select
-                          value={settingsData.preferences.dateFormat}
-                          onChange={(e) => handlePreferenceChange('dateFormat', e.target.value)}
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                        >
-                          <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                          <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                          <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                        </select>
-                      </div>
-                    </div>
+                    <h3 className="text-lg font-semibold text-white mb-4">Currency</h3>
+                    
+                    <select
+                      value={settingsData.preferences.currency}
+                      onChange={(e) => handlePreferenceChange('currency', e.target.value)}
+                      className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="INR">Indian Rupee (₹)</option>
+                      <option value="USD">US Dollar ($)</option>
+                      <option value="EUR">Euro (€)</option>
+                      <option value="GBP">British Pound (£)</option>
+                    </select>
                   </div>
-                  
+
                   <div className="bg-white/5 rounded-xl p-4">
+                    <h3 className="text-lg font-semibold text-white mb-4">Date Format</h3>
+                    
+                    <select
+                      value={settingsData.preferences.dateFormat}
+                      onChange={(e) => handlePreferenceChange('dateFormat', e.target.value)}
+                      className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                      <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                      <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                    </select>
+                  </div>
+
+                  <div className="bg-white/5 rounded-xl p-4 md:col-span-2">
                     <h3 className="text-lg font-semibold text-white mb-4">Notifications</h3>
+                    
                     <div className="flex items-center justify-between">
-                      <span className="text-white">Enable Notifications</span>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={settingsData.preferences.notifications}
-                          onChange={(e) => handlePreferenceChange('notifications', e.target.checked)}
-                          className="sr-only peer"
+                      <div>
+                        <p className="text-white">Email Notifications</p>
+                        <p className="text-sm text-gray-400">Receive updates via email</p>
+                      </div>
+                      <button
+                        onClick={() => handlePreferenceChange('notifications', !settingsData.preferences.notifications)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          settingsData.preferences.notifications ? "bg-purple-500" : "bg-gray-600"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            settingsData.preferences.notifications ? "translate-x-6" : "translate-x-1"
+                          }`}
                         />
-                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-                      </label>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -619,34 +689,34 @@ export default function ManagementContentModern({ user }: ManagementContentModer
             {/* Security Tab */}
             {activeTab === 'security' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-bold text-white mb-4">Security Settings</h2>
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+                  <Shield className="w-5 h-5 mr-2 text-purple-400" />
+                  Security Settings
+                </h2>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-4">
                   <div className="bg-white/5 rounded-xl p-4">
-                    <h3 className="text-lg font-semibold text-white mb-4">Authentication</h3>
-                    <div className="space-y-4">
-                      <button className="w-full py-3 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/20 transition-all duration-200">
-                        Change Password
-                      </button>
-                      <button className="w-full py-3 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/20 transition-all duration-200">
-                        Enable Two-Factor Authentication
-                      </button>
-                      <button className="w-full py-3 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/20 transition-all duration-200">
-                        View Login Activity
-                      </button>
-                    </div>
+                    <h3 className="text-lg font-semibold text-white mb-2">Two-Factor Authentication</h3>
+                    <p className="text-gray-400 mb-4">Add an extra layer of security to your account</p>
+                    <button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-lg hover:shadow-lg transition-all duration-200">
+                      Enable 2FA
+                    </button>
                   </div>
-                  
+
                   <div className="bg-white/5 rounded-xl p-4">
-                    <h3 className="text-lg font-semibold text-white mb-4">Data Management</h3>
-                    <div className="space-y-4">
-                      <button className="w-full py-3 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/20 transition-all duration-200">
-                        Export Data
-                      </button>
-                      <button className="w-full py-3 bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/30 transition-all duration-200">
-                        Delete Account
-                      </button>
-                    </div>
+                    <h3 className="text-lg font-semibold text-white mb-2">Login History</h3>
+                    <p className="text-gray-400 mb-4">View your recent login activity</p>
+                    <button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-lg hover:shadow-lg transition-all duration-200">
+                      View History
+                    </button>
+                  </div>
+
+                  <div className="bg-white/5 rounded-xl p-4">
+                    <h3 className="text-lg font-semibold text-white mb-2">Password</h3>
+                    <p className="text-gray-400 mb-4">Change your password regularly for better security</p>
+                    <button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-lg hover:shadow-lg transition-all duration-200">
+                      Change Password
+                    </button>
                   </div>
                 </div>
               </div>

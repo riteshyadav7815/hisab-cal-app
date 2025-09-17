@@ -4,8 +4,27 @@ import { useState, useEffect } from "react";
 import { Activity, Zap } from "lucide-react";
 import AppLayout from "./AppLayout";
 import Header from "./Header";
-import PerformanceDashboardModal from "./PerformanceDashboardModal";
+import dynamic from "next/dynamic";
 import { runInWorker } from "@/lib/web-worker-manager";
+
+// Dynamically import PerformanceDashboardModal to reduce bundle size
+const PerformanceDashboardModal = dynamic(() => import("./PerformanceDashboardModal"), { 
+  ssr: false,
+  loading: () => <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 rounded-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden border border-white/20 animate-pulse">
+      <div className="bg-white/10 backdrop-blur-xl border-b border-white/20 p-6">
+        <div className="h-8 bg-white/20 rounded w-1/3"></div>
+      </div>
+      <div className="p-6">
+        <div className="space-y-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-32 bg-white/10 rounded-xl"></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+});
 
 interface User {
   id: string;
@@ -21,9 +40,9 @@ interface SettingsContentProps {
 
 // Heavy computation function for processing settings data
 const processSettingsData = (settings: any) => {
-  // Simulate heavy computation
+  // Simulate lighter computation to reduce main thread blocking
   let result = 0;
-  for (let i = 0; i < 200000; i++) {
+  for (let i = 0; i < 50000; i++) { // Reduced from 200000 to 50000
     result += Math.sqrt(i) * Math.sin(i);
   }
   
@@ -58,7 +77,7 @@ export default function SettingsContent({ user }: SettingsContentProps) {
   useEffect(() => {
     const processSettings = async () => {
       try {
-        const processedSettings = await runInWorker(processSettingsData, settings);
+        const processedSettings = await runInWorker(processSettingsData, settings, 3000); // 3s timeout
         // We don't actually need to use the processed data, but this demonstrates
         // how to offload heavy computations to a Web Worker
         console.log('Settings processed in Web Worker');
