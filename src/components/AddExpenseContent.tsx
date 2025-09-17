@@ -13,10 +13,11 @@ interface User {
   email?: string | null;
   username?: string | null;
   image?: string | null;
+  userNumber?: number | null;
 }
 
 interface AddExpenseContentProps {
-  user: User;
+  user?: User; // Make user optional
 }
 
 const categories = [
@@ -122,7 +123,7 @@ export default function AddExpenseContent({ user }: AddExpenseContentProps) {
 
         <div className="relative">
           {/* Header */}
-          <Header user={user} />
+          {user && <Header user={user} />}
 
           <div className="mt-6">
             {/* Page Header */}

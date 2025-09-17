@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import MobileNavigation from "./MobileNavigation";
 import AddFriendModal from "./AddFriendModal";
+import { ProtectedActionProvider } from "./ProtectedActionProvider";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -25,7 +26,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }, []);
 
   return (
-    <>
+    <ProtectedActionProvider>
       {/* While mounting, render nothing to prevent double paint on mobile */}
       {!isMounted || isDesktop === null ? null : (
         isDesktop ? (
@@ -64,6 +65,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
         isOpen={showAddFriendModal} 
         onClose={() => setShowAddFriendModal(false)} 
       />
-    </>
+    </ProtectedActionProvider>
   );
 }

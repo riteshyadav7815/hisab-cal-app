@@ -3,31 +3,44 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Home, Users, Plus, BarChart3, Settings as SettingsIcon, User, LogOut, ArrowLeftRight } from "lucide-react";
+import { useProtectedAction } from "./ProtectedActionProvider";
+import { useRouter } from "next/navigation";
 
 interface SidebarProps {
   onAddFriendClick?: () => void;
 }
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: Home, type: "link" },
-  { name: "Add Friend", href: "/friends", icon: Users, type: "modal", modalType: "addFriend" },
-  { name: "Add Expense", href: "/add-expense", icon: Plus, type: "link" },
-  { name: "Money Transfer", href: "/transfer", icon: ArrowLeftRight, type: "link" },
-  { name: "Reports", href: "/reports", icon: BarChart3, type: "link" },
-  { name: "Management", href: "/management", icon: SettingsIcon, type: "link" },
-  { name: "Settings", href: "/settings", icon: SettingsIcon, type: "link" },
+  { name: "Dashboard", href: "/dashboard", icon: Home, type: "link", protected: false },
+  { name: "Add Friend", href: "/friends", icon: Users, type: "modal", modalType: "addFriend", protected: true },
+  { name: "Add Expense", href: "/add-expense", icon: Plus, type: "link", protected: true },
+  { name: "Money Transfer", href: "/transfer", icon: ArrowLeftRight, type: "link", protected: true },
+  { name: "Reports", href: "/reports", icon: BarChart3, type: "link", protected: true },
+  { name: "Management", href: "/management", icon: SettingsIcon, type: "link", protected: true },
+  { name: "Settings", href: "/settings", icon: SettingsIcon, type: "link", protected: true },
 ];
 
 export default function Sidebar({ onAddFriendClick }: SidebarProps) {
   const pathname = usePathname();
+  const { handleProtectedAction } = useProtectedAction();
+  const router = useRouter();
 
   const handleItemClick = (item: typeof navigation[0]) => {
     if (item.type === "modal") {
       if (item.modalType === "addFriend" && onAddFriendClick) {
-        onAddFriendClick();
+        if (item.protected) {
+          handleProtectedAction(onAddFriendClick);
+        } else {
+          onAddFriendClick();
+        }
+      }
+    } else if (item.type === "link") {
+      if (item.protected) {
+        handleProtectedAction(() => router.push(item.href));
+      } else {
+        router.push(item.href);
       }
     }
-    // For links, the Link component will handle navigation
   };
 
   return (
@@ -72,10 +85,10 @@ export default function Sidebar({ onAddFriendClick }: SidebarProps) {
           }
           
           return (
-            <Link
+            <button
               key={item.name}
-              href={item.href}
-              className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+              onClick={() => handleItemClick(item)}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
                 isActive
                   ? "bg-gradient-to-r from-[#7B5CFF] to-[#9B7FFF] text-white shadow-lg shadow-purple-500/25"
                   : "text-gray-300 hover:bg-white/10 hover:text-white hover:shadow-lg hover:shadow-purple-500/10"
@@ -88,7 +101,7 @@ export default function Sidebar({ onAddFriendClick }: SidebarProps) {
               {isActive && (
                 <div className="ml-auto w-2 h-2 bg-white rounded-full" />
               )}
-            </Link>
+            </button>
           );
         })}
       </nav>

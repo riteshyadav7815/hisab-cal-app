@@ -1,5 +1,5 @@
-import LandingPage from "@/components/LandingPage";
+import DashboardWrapper from "@/components/DashboardWrapper";
 
 export default function Home() {
-  return <LandingPage />;
+  return <DashboardWrapper />;
 }

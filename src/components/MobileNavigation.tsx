@@ -13,32 +13,45 @@ import {
   Menu,
   X
 } from "lucide-react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { useProtectedAction } from "./ProtectedActionProvider";
+import { useRouter } from "next/navigation";
 
 interface MobileNavProps {
   onAddFriendClick?: () => void;
 }
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: Home, type: "link" },
-  { name: "Add Friend", href: "/friends", icon: Users, type: "modal", modalType: "addFriend" },
-  { name: "Add Expense", href: "/add-expense", icon: Plus, type: "link" },
-  { name: "Money Transfer", href: "/transfer", icon: ArrowLeftRight, type: "link" },
-  { name: "Reports", href: "/reports", icon: BarChart3, type: "link" },
-  { name: "Management", href: "/management", icon: Settings, type: "link" },
-  { name: "Settings", href: "/settings", icon: Settings, type: "link" },
+  { name: "Dashboard", href: "/dashboard", icon: Home, type: "link", protected: false },
+  { name: "Add Friend", href: "/friends", icon: Users, type: "modal", modalType: "addFriend", protected: true },
+  { name: "Add Expense", href: "/add-expense", icon: Plus, type: "link", protected: true },
+  { name: "Money Transfer", href: "/transfer", icon: ArrowLeftRight, type: "link", protected: true },
+  { name: "Reports", href: "/reports", icon: BarChart3, type: "link", protected: true },
+  { name: "Management", href: "/management", icon: Settings, type: "link", protected: true },
+  { name: "Settings", href: "/settings", icon: Settings, type: "link", protected: true },
 ];
 
 export default function MobileNavigation({ onAddFriendClick }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { handleProtectedAction } = useProtectedAction();
+  const router = useRouter();
 
   const handleItemClick = (item: typeof navigation[0]) => {
     if (item.type === "modal") {
       if (item.modalType === "addFriend" && onAddFriendClick) {
-        onAddFriendClick();
+        if (item.protected) {
+          handleProtectedAction(onAddFriendClick);
+        } else {
+          onAddFriendClick();
+        }
+      }
+    } else if (item.type === "link") {
+      if (item.protected) {
+        handleProtectedAction(() => router.push(item.href));
+      } else {
+        router.push(item.href);
       }
     }
     setIsOpen(false); // Close menu after selection
@@ -106,11 +119,10 @@ export default function MobileNavigation({ onAddFriendClick }: MobileNavProps) {
                 }
                 
                 return (
-                  <Link
+                  <button
                     key={item.name}
-                    href={item.href}
-                    onClick={() => setIsOpen(false)}
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                    onClick={() => handleItemClick(item)}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                       isActive
                         ? "bg-gradient-to-r from-[#7B5CFF] to-[#9B7FFF] text-white shadow-lg shadow-purple-500/25"
                         : "text-gray-300 hover:bg-white/10 hover:text-white"
@@ -118,7 +130,7 @@ export default function MobileNavigation({ onAddFriendClick }: MobileNavProps) {
                   >
                     <IconComponent className="w-5 h-5 flex-shrink-0" />
                     <span className="font-medium text-left">{item.name}</span>
-                  </Link>
+                  </button>
                 );
               })}
             </nav>

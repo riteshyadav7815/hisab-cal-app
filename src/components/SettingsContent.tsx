@@ -15,7 +15,7 @@ interface User {
 }
 
 interface SettingsContentProps {
-  user: User;
+  user?: User; // Make user optional
 }
 
 export default function SettingsContent({ user }: SettingsContentProps) {
@@ -53,7 +53,7 @@ export default function SettingsContent({ user }: SettingsContentProps) {
         {/* Remove the heavy background effects for better performance */}
         <div className="relative">
           {/* Header */}
-          <Header user={user} />
+          {user && <Header user={user} />}
           
           {/* Settings Content */}
           <div className="mt-6">
@@ -211,6 +211,25 @@ export default function SettingsContent({ user }: SettingsContentProps) {
                       />
                     </button>
                   </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-medium">Show Last Seen</h3>
+                      <p className="text-gray-400 text-sm">Display when you were last active</p>
+                    </div>
+                    <button
+                      onClick={() => handleSettingChange("privacy", "showLastSeen", !settings.privacy.showLastSeen)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        settings.privacy.showLastSeen ? "bg-purple-500" : "bg-gray-600"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          settings.privacy.showLastSeen ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -222,7 +241,7 @@ export default function SettingsContent({ user }: SettingsContentProps) {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-white font-medium">Two-Factor Authentication</h3>
-                      <p className="text-gray-400 text-sm">Add an extra layer of security</p>
+                      <p className="text-gray-400 text-sm">Add an extra layer of security to your account</p>
                     </div>
                     <button
                       onClick={() => handleSettingChange("security", "twoFactor", !settings.security.twoFactor)}
@@ -241,7 +260,7 @@ export default function SettingsContent({ user }: SettingsContentProps) {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-white font-medium">Login Alerts</h3>
-                      <p className="text-gray-400 text-sm">Get notified of new login attempts</p>
+                      <p className="text-gray-400 text-sm">Get notified when someone logs into your account</p>
                     </div>
                     <button
                       onClick={() => handleSettingChange("security", "loginAlerts", !settings.security.loginAlerts)}
@@ -258,23 +277,16 @@ export default function SettingsContent({ user }: SettingsContentProps) {
                   </div>
                 </div>
               </div>
-
-              {/* Save Button */}
-              <div className="flex justify-end">
-                <button className="px-8 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-xl hover:shadow-lg transition-all duration-200">
-                  Save Settings
-                </button>
-              </div>
             </motion.div>
           </div>
         </div>
-      </div>
 
-      {/* Performance Dashboard Modal */}
-      <PerformanceDashboardModal
-        isOpen={showPerformanceDashboard}
-        onClose={() => setShowPerformanceDashboard(false)}
-      />
+        {/* Performance Dashboard Modal */}
+        <PerformanceDashboardModal 
+          isOpen={showPerformanceDashboard} 
+          onClose={() => setShowPerformanceDashboard(false)} 
+        />
+      </div>
     </AppLayout>
   );
 }
