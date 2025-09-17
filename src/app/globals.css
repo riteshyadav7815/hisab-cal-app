@@ -90,3 +90,13 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(123, 92, 255, 0.8);
 }
+
+/* Hide scrollbars for elements with scrollbar-hide class */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
