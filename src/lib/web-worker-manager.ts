@@ -32,8 +32,8 @@ export class WebWorkerManager {
   }
 }
 
-// Helper function to run a function in a Web Worker
-export function runInWorker<T, R>(workerFunction: (data: T) => R, data: T): Promise<R> {
+// Helper function to run a function in a Web Worker with timeout
+export function runInWorker<T, R>(workerFunction: (data: T) => R, data: T, timeoutMs: number = 5000): Promise<R> {
   return new Promise((resolve, reject) => {
     // Create a worker with the function
     const workerCode = `
@@ -50,8 +50,15 @@ export function runInWorker<T, R>(workerFunction: (data: T) => R, data: T): Prom
     const blob = new Blob([workerCode], { type: 'application/javascript' });
     const worker = new Worker(URL.createObjectURL(blob));
     
+    // Set up timeout
+    const timeoutId = setTimeout(() => {
+      worker.terminate();
+      reject(new Error('Web Worker timed out'));
+    }, timeoutMs);
+    
     // Handle messages from the worker
     worker.onmessage = function(e) {
+      clearTimeout(timeoutId);
       worker.terminate(); // Clean up
       if (e.data.error) {
         reject(new Error(e.data.error));
@@ -62,6 +69,7 @@ export function runInWorker<T, R>(workerFunction: (data: T) => R, data: T): Prom
     
     // Handle errors
     worker.onerror = function(error) {
+      clearTimeout(timeoutId);
       worker.terminate(); // Clean up
       reject(error);
     };

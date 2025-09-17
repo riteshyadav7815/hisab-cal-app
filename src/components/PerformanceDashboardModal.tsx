@@ -3,14 +3,35 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Activity, Zap, TrendingUp, Monitor } from "lucide-react";
 import dynamic from "next/dynamic";
 
-// Dynamically import heavy components
-const SystemStatus = dynamic(() => import("./SystemStatus"), { ssr: false });
-const ButtonTester = dynamic(() => import("./ButtonTester"), { ssr: false });
-const PerformanceReport = dynamic(() => import("./PerformanceReport"), { ssr: false });
-const OptimizationStatus = dynamic(() => import("./OptimizationStatus"), { ssr: false });
-const PerformanceSummary = dynamic(() => import("./PerformanceSummary"), { ssr: false });
-const CacheWarmer = dynamic(() => import("./CacheWarmer"), { ssr: false });
-const PerformanceMonitor = dynamic(() => import("./PerformanceMonitor"), { ssr: false });
+// Dynamically import heavy components with loading states
+const SystemStatus = dynamic(() => import("./SystemStatus"), { 
+  ssr: false,
+  loading: () => <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10 h-64 animate-pulse" />
+});
+const ButtonTester = dynamic(() => import("./ButtonTester"), { 
+  ssr: false,
+  loading: () => <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10 h-64 animate-pulse" />
+});
+const PerformanceReport = dynamic(() => import("./PerformanceReport"), { 
+  ssr: false,
+  loading: () => <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10 h-64 animate-pulse" />
+});
+const OptimizationStatus = dynamic(() => import("./OptimizationStatus"), { 
+  ssr: false,
+  loading: () => <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10 h-64 animate-pulse" />
+});
+const PerformanceSummary = dynamic(() => import("./PerformanceSummary"), { 
+  ssr: false,
+  loading: () => <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10 h-64 animate-pulse" />
+});
+const CacheWarmer = dynamic(() => import("./CacheWarmer"), { 
+  ssr: false,
+  loading: () => <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10 h-64 animate-pulse" />
+});
+const PerformanceMonitor = dynamic(() => import("./PerformanceMonitor"), { 
+  ssr: false,
+  loading: () => <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/10 h-64 animate-pulse" />
+});
 
 interface PerformanceDashboardModalProps {
   isOpen: boolean;

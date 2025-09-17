@@ -28,9 +28,9 @@ interface PerformanceTest {
 
 // Heavy computation function that will run in a Web Worker
 const analyzePerformanceData = (data: any) => {
-  // Simulate heavy computation
+  // Simulate lighter computation to reduce main thread blocking
   let result = 0;
-  for (let i = 0; i < 1000000; i++) {
+  for (let i = 0; i < 100000; i++) { // Reduced from 1000000 to 100000
     result += Math.sqrt(i) * Math.sin(i);
   }
   
@@ -54,7 +54,22 @@ export default function PerformanceMonitor() {
     setError(null);
 
     try {
-      const response = await fetch('/api/performance-test');
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch('/api/performance-test', {
+        signal: controller.signal,
+        // Add caching headers to reduce server load
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
       const data = await response.json();
       
       if (response.ok) {
@@ -64,8 +79,12 @@ export default function PerformanceMonitor() {
       } else {
         setError(data.error || 'Performance test failed');
       }
-    } catch (err) {
-      setError('Failed to run performance test');
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        setError('Performance test timed out. Server may be slow.');
+      } else {
+        setError('Failed to run performance test');
+      }
       console.error('Performance test error:', err);
     } finally {
       setIsLoading(false);

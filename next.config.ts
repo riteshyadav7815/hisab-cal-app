@@ -122,6 +122,13 @@ const nextConfig: NextConfig = {
             chunks: 'all',
             priority: 15,
           },
+          // Add more granular splitting for better caching
+          lodash: {
+            test: /[\\/]node_modules[\\/](lodash)[\\/]/,
+            name: 'lodash',
+            chunks: 'all',
+            priority: 15,
+          },
         },
       },
       // Minimize in development as well for better performance testing
