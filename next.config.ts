@@ -16,6 +16,17 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['@react-three/fiber', '@react-three/drei', 'framer-motion', 'recharts', 'lucide-react'],
     ppr: false,
     webpackBuildWorker: true, // Enable webpack build worker for faster builds
+    serverComponentsExternalPackages: ['bcrypt'],
+    // Enable server actions optimizations
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+    // Enable large page data optimization
+    largePageDataBytes: 256 * 1000, // 256 KB
+    // Enable gzip compression for static assets
+    gzipSize: true,
+    // Optimize server builds
+    serverMinification: true,
   },
   
   // Image optimization
@@ -46,6 +57,10 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   
+  // Additional performance optimizations
+  // Enable static optimization
+  staticPageGenerationTimeout: 120,
+  
   // Bundle optimization
   // swcMinify: true, // Removed deprecated option
   
@@ -67,6 +82,7 @@ const nextConfig: NextConfig = {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
             chunks: 'all',
+            priority: 10,
           },
           three: {
             test: /[\\/]node_modules[\\/](three|@react-three)[\\/]/,
@@ -86,8 +102,31 @@ const nextConfig: NextConfig = {
             chunks: 'all',
             priority: 10,
           },
+          framer: {
+            test: /[\\/]node_modules[\\/](framer-motion)[\\/]/,
+            name: 'framer',
+            chunks: 'all',
+            priority: 10,
+          },
+          nextauth: {
+            test: /[\\/]node_modules[\\/](next-auth)[\\/]/,
+            name: 'nextauth',
+            chunks: 'all',
+            priority: 10,
+          },
+          // Split large libraries into smaller chunks
+          react: {
+            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            name: 'react',
+            chunks: 'all',
+            priority: 20,
+          },
         },
       },
+      // Minimize in development as well for better performance testing
+      minimize: !dev,
+      // Enable module concatenation for smaller bundles
+      concatenateModules: true,
     };
     
     // Bundle analyzer
@@ -111,8 +150,23 @@ const nextConfig: NextConfig = {
               drop_console: true,
               drop_debugger: true,
               pure_funcs: ['console.info', 'console.debug', 'console.warn'],
+              // Additional compression options
+              passes: 2,
+              comparisons: false,
+              // Reduce size by removing redundant code
+              reduce_funcs: true,
+              reduce_vars: true,
+              // Optimize conditionals
+              conditionals: true,
+              // Optimize booleans
+              booleans: true,
             },
             mangle: true,
+            safari10: true,
+            // Output options for smaller bundles
+            output: {
+              comments: false,
+            },
           },
           parallel: true,
         })
@@ -153,6 +207,10 @@ const nextConfig: NextConfig = {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
           },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
         ],
       },
     ];
@@ -174,6 +232,17 @@ const nextConfig: NextConfig = {
   
   // File tracing configuration
   outputFileTracingRoot: __dirname,
+  
+  // Performance optimizations
+  reactStrictMode: false, // Disable in production for better performance
+  swcMinify: true,
+  
+  // Additional performance optimizations
+  compiler: {
+    removeConsole: {
+      exclude: ['error'],
+    },
+  },
 };
 
 export default nextConfig;

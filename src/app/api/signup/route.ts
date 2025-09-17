@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/server/db";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import { z } from "zod";
 
 const schema = z.object({
