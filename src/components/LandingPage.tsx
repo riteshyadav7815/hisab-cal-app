@@ -29,16 +29,25 @@ export default function LandingPage() {
     );
   }
 
+  // Function to handle protected actions
+  const handleProtectedAction = (action: () => void) => {
+    if (status === "authenticated") {
+      action();
+    } else {
+      setShowLoginModal(true);
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#1A1735] via-[#2D1B69] to-[#1A1735]">
       <ThreeBackground />
       
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center">
+      <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-10">
         <div className="text-2xl font-bold text-white">Hisab Cal</div>
         <button
           onClick={() => setShowLoginModal(true)}
-          className="px-6 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-xl font-semibold text-white shadow-lg hover:shadow-purple-500/25 transition-all duration-200"
+          className="px-6 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-xl font-semibold text-white shadow-lg hover:shadow-purple-500/25 transition-all duration-200 hover:scale-105 transform"
         >
           Sign In
         </button>
@@ -54,14 +63,14 @@ export default function LandingPage() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
           <button
-            onClick={() => setShowLoginModal(true)}
-            className="px-8 py-4 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-xl font-semibold text-white text-lg shadow-lg hover:shadow-purple-500/25 transition-all duration-200"
+            onClick={() => handleProtectedAction(() => router.push("/dashboard"))}
+            className="px-8 py-4 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-xl font-semibold text-white text-lg shadow-lg hover:shadow-purple-500/25 transition-all duration-200 hover:scale-105 transform"
           >
             Get Started
           </button>
           <button
-            onClick={() => router.push("/dashboard")}
-            className="px-8 py-4 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl font-semibold text-white text-lg hover:bg-white/20 transition-all duration-200"
+            onClick={() => handleProtectedAction(() => router.push("/dashboard"))}
+            className="px-8 py-4 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl font-semibold text-white text-lg hover:bg-white/20 transition-all duration-200 hover:scale-105 transform"
           >
             View Demo
           </button>
@@ -75,21 +84,21 @@ export default function LandingPage() {
             Why Choose Hisab Cal?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+            <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-200 hover:scale-105 transform">
               <div className="text-4xl mb-4">📊</div>
               <h3 className="text-xl font-semibold text-white mb-2">Smart Tracking</h3>
               <p className="text-gray-300">
                 Automatically track and categorize your expenses with our intelligent system.
               </p>
             </div>
-            <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+            <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-200 hover:scale-105 transform">
               <div className="text-4xl mb-4">👥</div>
               <h3 className="text-xl font-semibold text-white mb-2">Group Expenses</h3>
               <p className="text-gray-300">
                 Easily split bills and track shared expenses with friends and family.
               </p>
             </div>
-            <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+            <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-200 hover:scale-105 transform">
               <div className="text-4xl mb-4">🔒</div>
               <h3 className="text-xl font-semibold text-white mb-2">Secure & Private</h3>
               <p className="text-gray-300">

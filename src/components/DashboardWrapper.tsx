@@ -55,8 +55,17 @@ export default function DashboardWrapper() {
   // Handle login success
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
-    // Refresh the page to update the session
+    // Refresh the session to ensure it's up to date
     window.location.reload();
+  };
+
+  // Handle modal close without login
+  const handleModalClose = () => {
+    setShowLoginModal(false);
+    // If user closes modal without logging in, redirect to landing page
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
   };
 
   // Show loading state
@@ -84,7 +93,7 @@ export default function DashboardWrapper() {
             <p className="text-2xl text-gray-300 mb-8">Please sign in to continue</p>
             <button
               onClick={() => setShowLoginModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-xl font-semibold text-white shadow-lg hover:shadow-purple-500/25 transition-all duration-200"
+              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-xl font-semibold text-white shadow-lg hover:shadow-purple-500/25 transition-all duration-200 hover:scale-105 transform"
             >
               Sign In
             </button>
@@ -95,7 +104,7 @@ export default function DashboardWrapper() {
         <LoginModal 
           isOpen={showLoginModal} 
           allowClose={true}
-          onClose={handleLoginSuccess}
+          onClose={handleModalClose}
         />
       </div>
     );

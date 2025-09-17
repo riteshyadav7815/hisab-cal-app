@@ -1,7 +1,7 @@
 "use client";
 import { useState, useTransition } from "react";
 import { signIn } from "next-auth/react";
-import { X } from "lucide-react";
+import { X, User, Lock, Mail, Eye, EyeOff } from "lucide-react";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -17,15 +17,35 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
   const [password, setPassword] = useState("");
   const [name, setName] = useState(""); // For signup
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
+    // Basic validation
+    if (mode === "signup" && (!name || !email || !username || !password)) {
+      setError("All fields are required");
+      return;
+    }
+    
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (mode === "signup" && !emailRegex.test(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    
     startTransition(async () => {
       try {
         console.log('Attempting signup...', { name, username, email });
         const apiUrl = process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:3003/api/signup' // Updated to match current port
+          ? 'http://localhost:3000/api/signup' // Updated to match current port
           : '/api/signup';
         
         const res = await fetch(apiUrl, {
@@ -43,6 +63,8 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
         const data = await res.json();
         console.log('Signup response:', { status: res.status, data });
         setMode("login");
+        setError(null); // Clear any previous errors
+        // Show success message
         alert('Account created successfully! You can now log in.');
         
         // Clear form
@@ -55,7 +77,6 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
         console.error('Signup error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Network error';
         setError(`Signup failed: ${errorMessage}`);
-        alert(`Signup failed: ${errorMessage}`);
       }
     });
   };
@@ -63,6 +84,13 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
+    // Basic validation
+    if (!username || !password) {
+      setError("Username and password are required");
+      return;
+    }
+    
     startTransition(async () => {
       try {
         console.log('Attempting login...', { username });
@@ -76,22 +104,47 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
           // Clear form on successful login
           setUsername('');
           setPassword('');
+          setError(null); // Clear any previous errors
           onClose();
         } else {
           const errorMsg = result?.error === 'CredentialsSignin' 
             ? 'Invalid username or password' 
             : result?.error || 'Login failed';
-          setError(`Login failed: ${errorMsg}`);
-          alert(`Login failed: ${errorMsg}`);
+          setError(errorMsg);
         }
       } catch (error) {
         console.error('Login error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Network error';
         setError(`Login failed: ${errorMessage}`);
-        alert(`Login failed: ${errorMessage}`);
       }
     });
   };
+
+  const handleSocialLogin = (provider: string) => {
+    signIn(provider, { callbackUrl: "/dashboard" });
+  };
+
+  // Handle escape key press
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && allowClose) {
+      onClose();
+    }
+  };
+
+  // Add event listener for escape key
+  useState(() => {
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      // Prevent background scrolling when modal is open
+      document.body.style.overflow = 'hidden';
+    }
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      // Re-enable background scrolling when modal is closed
+      document.body.style.overflow = 'unset';
+    };
+  });
 
   if (!isOpen) return null;
 
@@ -110,102 +163,174 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
           <button
             onClick={onClose}
             className="absolute top-6 right-6 p-3 text-gray-400 hover:text-white transition-colors rounded-xl hover:bg-white/10 z-10"
+            aria-label="Close modal"
           >
             <X className="w-6 h-6" />
           </button>
         )}
 
         <div className="p-8">
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-white text-center">
-            {mode === "login" ? "Welcome back" : "Create your account"}
-          </h1>
-          <p className="mt-1 text-sm text-gray-300 text-center">
-            {mode === "login" ? "Log in to continue" : "Sign up to get started"}
-          </p>
+          <div className="text-center mb-8">
+            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 flex items-center justify-center mb-4">
+              <User className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-white">
+              {mode === "login" ? "Welcome back" : "Create your account"}
+            </h1>
+            <p className="mt-1 text-sm text-gray-300">
+              {mode === "login" ? "Log in to continue" : "Sign up to get started"}
+            </p>
+          </div>
 
           {error && (
-            <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-200 text-sm">
+            <div className="mb-6 p-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-200 text-sm">
               {error}
             </div>
           )}
 
+          <div className="flex mb-6 bg-white/10 rounded-xl p-1">
+            <button
+              onClick={() => {
+                setMode("login");
+                setError(null);
+              }}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+                mode === "login"
+                  ? "bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow"
+                  : "text-gray-300 hover:text-white"
+              }`}
+              aria-pressed={mode === "login"}
+            >
+              Login
+            </button>
+            <button
+              onClick={() => {
+                setMode("signup");
+                setError(null);
+              }}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+                mode === "signup"
+                  ? "bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow"
+                  : "text-gray-300 hover:text-white"
+              }`}
+              aria-pressed={mode === "signup"}
+            >
+              Sign Up
+            </button>
+          </div>
+
           <form
-            className="mt-6 grid gap-4"
+            className="grid gap-4"
             onSubmit={mode === "login" ? handleLogin : handleSignup}
           >
             {mode === "signup" && (
               <div>
-                <label className="text-sm text-gray-300">Name</label>
+                <label className="text-sm text-gray-300 mb-1 block">Full Name</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    className="w-full rounded-xl bg-white/10 border border-white/20 pl-10 pr-4 py-3 text-white placeholder-gray-400 outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 transition-all"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your full name"
+                    required={mode === "signup"}
+                    disabled={isPending}
+                  />
+                </div>
+              </div>
+            )}
+            
+            <div>
+              <label className="text-sm text-gray-300 mb-1 block">Username</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-gray-400" />
+                </div>
                 <input
                   type="text"
-                  className="mt-1 w-full rounded-xl bg-white/10 border border-white/20 px-4 py-3 text-white placeholder-gray-400 outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Your name"
+                  className="w-full rounded-xl bg-white/10 border border-white/20 pl-10 pr-4 py-3 text-white placeholder-gray-400 outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 transition-all"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
                   required
+                  disabled={isPending}
                 />
               </div>
-            )}
-            <div>
-              <label className="text-sm text-gray-300">Username</label>
-              <input
-                type="text"
-                className="mt-1 w-full rounded-xl bg-white/10 border border-white/20 px-4 py-3 text-white placeholder-gray-400 outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="your_username"
-                required
-              />
             </div>
+            
             {mode === "signup" && (
               <div>
-                <label className="text-sm text-gray-300">Email</label>
-                <input
-                  type="email"
-                  className="mt-1 w-full rounded-xl bg-white/10 border border-white/20 px-4 py-3 text-white placeholder-gray-400 outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  required
-                />
+                <label className="text-sm text-gray-300 mb-1 block">Email</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="email"
+                    className="w-full rounded-xl bg-white/10 border border-white/20 pl-10 pr-4 py-3 text-white placeholder-gray-400 outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 transition-all"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    required={mode === "signup"}
+                    disabled={isPending}
+                  />
+                </div>
               </div>
             )}
+            
             <div>
-              <label className="text-sm text-gray-300">Password</label>
-              <input
-                type="password"
-                className="mt-1 w-full rounded-xl bg-white/10 border border-white/20 px-4 py-3 text-white placeholder-gray-400 outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                minLength={6}
-              />
+              <label className="text-sm text-gray-300 mb-1 block">Password</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  className="w-full rounded-xl bg-white/10 border border-white/20 pl-10 pr-12 py-3 text-white placeholder-gray-400 outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 transition-all"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                  minLength={6}
+                  disabled={isPending}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-white" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400 hover:text-white" />
+                  )}
+                </button>
+              </div>
+              {mode === "signup" && (
+                <p className="text-xs text-gray-400 mt-1">Password must be at least 6 characters</p>
+              )}
             </div>
+            
             <button
               type="submit"
               disabled={isPending}
-              className="mt-2 w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-xl font-semibold text-white shadow-lg hover:shadow-purple-500/25 transition-all duration-200 disabled:opacity-50"
+              className="mt-2 w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-xl font-semibold text-white shadow-lg hover:shadow-purple-500/25 transition-all duration-200 hover:scale-105 transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {isPending ? "Please wait..." : mode === "login" ? "Log in" : "Sign up"}
+              {isPending ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Please wait...
+                </span>
+              ) : mode === "login" ? "Log in" : "Sign up"}
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={() =>
-                startTransition(() =>
-                  setMode(mode === "login" ? "signup" : "login")
-                )
-              }
-              className="text-sm text-gray-300 hover:text-white underline decoration-dotted underline-offset-4 transition-colors"
-              disabled={isPending}
-            >
-              {mode === "login"
-                ? "Don't have an account? Sign Up"
-                : "Already have an account? Log In"}
-            </button>
-          </div>
 
           <div className="mt-6">
             <div className="relative">
@@ -221,15 +346,23 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
-                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-                className="w-full py-3 px-4 border border-white/20 rounded-xl bg-white/10 text-sm font-medium text-gray-300 hover:bg-white/20 transition-all"
+                onClick={() => handleSocialLogin("google")}
+                className="w-full py-3 px-4 border border-white/20 rounded-xl bg-white/10 text-sm font-medium text-gray-300 hover:bg-white/20 hover:text-white transition-all hover:scale-105 transform flex items-center justify-center gap-2"
+                disabled={isPending}
               >
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/>
+                </svg>
                 Google
               </button>
               <button
-                onClick={() => signIn("facebook", { callbackUrl: "/dashboard" })}
-                className="w-full py-3 px-4 border border-white/20 rounded-xl bg-white/10 text-sm font-medium text-gray-300 hover:bg-white/20 transition-all"
+                onClick={() => handleSocialLogin("facebook")}
+                className="w-full py-3 px-4 border border-white/20 rounded-xl bg-white/10 text-sm font-medium text-gray-300 hover:bg-white/20 hover:text-white transition-all hover:scale-105 transform flex items-center justify-center gap-2"
+                disabled={isPending}
               >
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
                 Facebook
               </button>
             </div>
