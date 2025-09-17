@@ -1,5 +1,5 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useCallback, useMemo, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { X, User, Lock, Mail, Eye, EyeOff } from "lucide-react";
 
@@ -19,7 +19,7 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     
@@ -79,9 +79,9 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
         setError(`Signup failed: ${errorMessage}`);
       }
     });
-  };
+  }, [mode, name, email, username, password]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     
@@ -118,17 +118,17 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
         setError(`Login failed: ${errorMessage}`);
       }
     });
-  };
+  }, [username, password, onClose]);
 
   // Handle escape key press
-  const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape' && allowClose) {
       onClose();
     }
-  };
+  }, [allowClose, onClose]);
 
   // Add event listener for escape key
-  useState(() => {
+  useEffect(() => {
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
       // Prevent background scrolling when modal is open
@@ -140,7 +140,28 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
       // Re-enable background scrolling when modal is closed
       document.body.style.overflow = 'unset';
     };
-  });
+  }, [isOpen, handleKeyDown]);
+
+  // Reset error when mode changes
+  useEffect(() => {
+    setError(null);
+  }, [mode]);
+
+  const toggleMode = useCallback(() => {
+    setMode(prev => prev === "login" ? "signup" : "login");
+  }, []);
+
+  const togglePasswordVisibility = useCallback(() => {
+    setShowPassword(prev => !prev);
+  }, []);
+
+  const modeButtonClass = useCallback((isActive: boolean) => {
+    return `flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+      isActive
+        ? "bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow"
+        : "text-gray-300 hover:text-white"
+    }`;
+  }, []);
 
   if (!isOpen) return null;
 
@@ -186,29 +207,15 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
 
           <div className="flex mb-6 bg-white/10 rounded-xl p-1">
             <button
-              onClick={() => {
-                setMode("login");
-                setError(null);
-              }}
-              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
-                mode === "login"
-                  ? "bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow"
-                  : "text-gray-300 hover:text-white"
-              }`}
+              onClick={toggleMode}
+              className={modeButtonClass(mode === "login")}
               aria-pressed={mode === "login"}
             >
               Login
             </button>
             <button
-              onClick={() => {
-                setMode("signup");
-                setError(null);
-              }}
-              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
-                mode === "signup"
-                  ? "bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow"
-                  : "text-gray-300 hover:text-white"
-              }`}
+              onClick={toggleMode}
+              className={modeButtonClass(mode === "signup")}
               aria-pressed={mode === "signup"}
             >
               Sign Up
@@ -296,7 +303,7 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={togglePasswordVisibility}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+const webpack = require('webpack');
 
 const nextConfig: NextConfig = {
   // Disable linting and type checking for deployment
@@ -37,6 +38,8 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 3600, // 1 hour
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
   // Compression and optimization
@@ -53,7 +56,7 @@ const nextConfig: NextConfig = {
   },
   
   // Webpack optimizations
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config, { dev, isServer, webpack: webpackInstance }) => {
     // Optimize bundle size
     config.optimization = {
       ...config.optimization,
@@ -65,9 +68,39 @@ const nextConfig: NextConfig = {
             name: 'vendors',
             chunks: 'all',
           },
+          three: {
+            test: /[\\/]node_modules[\\/](three|@react-three)[\\/]/,
+            name: 'three',
+            chunks: 'all',
+            priority: 10,
+          },
+          lucide: {
+            test: /[\\/]node_modules[\\/](lucide-react)[\\/]/,
+            name: 'lucide',
+            chunks: 'all',
+            priority: 10,
+          },
+          recharts: {
+            test: /[\\/]node_modules[\\/](recharts)[\\/]/,
+            name: 'recharts',
+            chunks: 'all',
+            priority: 10,
+          },
         },
       },
     };
+    
+    // Bundle analyzer
+    if (process.env.ANALYZE) {
+      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+      config.plugins.push(
+        new BundleAnalyzerPlugin({
+          analyzerMode: 'static',
+          reportFilename: isServer ? '../analyze/server.html' : './analyze/client.html',
+          openAnalyzer: false,
+        })
+      );
+    }
     
     if (!dev && !isServer) {
       // Remove console.log in production
@@ -76,11 +109,24 @@ const nextConfig: NextConfig = {
           terserOptions: {
             compress: {
               drop_console: true,
+              drop_debugger: true,
+              pure_funcs: ['console.info', 'console.debug', 'console.warn'],
             },
+            mangle: true,
           },
+          parallel: true,
         })
       );
     }
+    
+    // Add webpack plugins for optimization
+    config.plugins.push(
+      new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /en/),
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^\.\/locale$/,
+        contextRegExp: /moment$/,
+      })
+    );
     
     return config;
   },

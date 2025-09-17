@@ -1,10 +1,16 @@
 "use client";
 import { useEffect, useRef } from "react";
 
+// Check if we're in a browser environment
+const isBrowser = typeof window !== 'undefined';
+
 export default function ThreeBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    // Only run in browser environment
+    if (!isBrowser) return;
+    
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -75,7 +81,29 @@ export default function ThreeBackground() {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationId);
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, []);
+
+  // Reduce animation intensity on mobile devices
+  useEffect(() => {
+    if (!isBrowser) return;
+    
+    const handleResize = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 

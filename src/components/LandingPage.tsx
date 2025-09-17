@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import LoginModal from "./LoginModal";
-import ThreeBackground from "./ThreeBackground";
+import LazyThreeBackground from "./LazyThreeBackground";
 
 export default function LandingPage() {
   const { data: session, status } = useSession();
@@ -21,7 +21,7 @@ export default function LandingPage() {
   if (status === "loading") {
     return (
       <div className="relative min-h-screen bg-gradient-to-br from-[#1A1735] via-[#2D1B69] to-[#1A1735]">
-        <ThreeBackground />
+        <LazyThreeBackground />
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-white text-2xl font-semibold">Loading...</div>
         </div>
@@ -40,7 +40,7 @@ export default function LandingPage() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#1A1735] via-[#2D1B69] to-[#1A1735]">
-      <ThreeBackground />
+      <LazyThreeBackground />
       
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-10">
