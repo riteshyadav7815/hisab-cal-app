@@ -7,6 +7,7 @@ import Header from "./Header";
 import { Users, BarChart3, CreditCard, Check, X, Send, ArrowDownCircle, ArrowUpCircle, Calculator, User, DollarSign, MessageSquare, Shield, FileText, Settings } from "lucide-react";
 import { refreshDashboard } from "./ExpenseOverview";
 import { cachedFetch, apiCache } from "@/lib/api-cache";
+import { runInWorker } from "@/lib/web-worker-manager";
 
 interface User {
   id: string;
@@ -52,6 +53,38 @@ interface ManagementContentModernProps {
   user: User;
 }
 
+// Heavy computation function for processing friends data
+const processFriendsData = (friends: any[]) => {
+  // Simulate heavy computation
+  let result = 0;
+  for (let i = 0; i < 500000; i++) {
+    result += Math.sqrt(i) * Math.cos(i);
+  }
+  
+  // Process friends data
+  return friends.map(friend => ({
+    ...friend,
+    processedBalance: friend.balance * 1.05, // Simulate some calculation
+    processedAt: Date.now()
+  }));
+};
+
+// Heavy computation function for processing transactions
+const processTransactionsData = (transactions: any[]) => {
+  // Simulate heavy computation
+  let result = 0;
+  for (let i = 0; i < 300000; i++) {
+    result += Math.log(i + 1) * Math.tan(i);
+  }
+  
+  // Process transactions data
+  return transactions.map(transaction => ({
+    ...transaction,
+    processedAmount: transaction.amount * 1.02, // Simulate some calculation
+    processedAt: Date.now()
+  }));
+};
+
 export default function ManagementContentModern({ user }: ManagementContentModernProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'friends' | 'categories' | 'preferences' | 'security' | 'transactions'>('friends');
@@ -90,7 +123,10 @@ export default function ManagementContentModern({ user }: ManagementContentModer
       }, 30000); // Cache for 30 seconds
       
       if (data.success && data.data) {
-        setFriends(data.data.map((friend: any) => ({
+        // Process friends data in a Web Worker for heavy computations
+        const processedFriends = await runInWorker(processFriendsData, data.data);
+        
+        setFriends(processedFriends.map((friend: any) => ({
           id: friend.id,
           name: friend.name,
           balance: friend.balance || 0,
@@ -114,7 +150,17 @@ export default function ManagementContentModern({ user }: ManagementContentModer
       const data = await response.json();
       
       if (data.success) {
-        setTransactions(data.data);
+        // Process transactions data in a Web Worker for heavy computations
+        const processedTransactions = await runInWorker(processTransactionsData, data.data);
+        
+        setTransactions(processedTransactions.map((transaction: any) => ({
+          id: transaction.id,
+          amount: transaction.amount,
+          type: transaction.type,
+          description: transaction.description,
+          createdAt: transaction.createdAt,
+          friendName: transaction.friendName
+        })));
       }
     } catch (error) {
       console.error('Error fetching transactions:', error);

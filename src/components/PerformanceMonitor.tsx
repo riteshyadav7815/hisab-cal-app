@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Activity, Zap, Database, Clock, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
+import { runInWorker } from "@/lib/web-worker-manager";
 
 interface PerformanceMetrics {
   totalTime: string;
@@ -25,6 +26,24 @@ interface PerformanceTest {
   };
 }
 
+// Heavy computation function that will run in a Web Worker
+const analyzePerformanceData = (data: any) => {
+  // Simulate heavy computation
+  let result = 0;
+  for (let i = 0; i < 1000000; i++) {
+    result += Math.sqrt(i) * Math.sin(i);
+  }
+  
+  // Process the performance data
+  const processedData = {
+    ...data,
+    analysisResult: result,
+    processedAt: Date.now()
+  };
+  
+  return processedData;
+};
+
 export default function PerformanceMonitor() {
   const [metrics, setMetrics] = useState<PerformanceTest | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +58,9 @@ export default function PerformanceMonitor() {
       const data = await response.json();
       
       if (response.ok) {
-        setMetrics(data);
+        // Run heavy computation in a Web Worker
+        const processedData = await runInWorker(analyzePerformanceData, data);
+        setMetrics(processedData);
       } else {
         setError(data.error || 'Performance test failed');
       }

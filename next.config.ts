@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-const webpack = require('webpack');
 
 const nextConfig: NextConfig = {
   // Disable linting and type checking for deployment
@@ -13,10 +12,9 @@ const nextConfig: NextConfig = {
   // Performance optimizations
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: ['@react-three/fiber', '@react-three/drei', 'framer-motion', 'recharts', 'lucide-react'],
+    optimizePackageImports: ['framer-motion', 'recharts', 'lucide-react'],
     ppr: false,
     webpackBuildWorker: true, // Enable webpack build worker for faster builds
-    serverComponentsExternalPackages: ['bcrypt'],
     // Enable server actions optimizations
     serverActions: {
       bodySizeLimit: '2mb',
@@ -28,6 +26,8 @@ const nextConfig: NextConfig = {
     // Optimize server builds
     serverMinification: true,
   },
+  // External packages configuration
+  serverExternalPackages: ['bcrypt'],
   
   // Image optimization
   images: {
@@ -62,7 +62,7 @@ const nextConfig: NextConfig = {
   staticPageGenerationTimeout: 120,
   
   // Bundle optimization
-  // swcMinify: true, // Removed deprecated option
+  // swcMinify: true, // Removed deprecated option - now using compiler.removeConsole
   
   // Performance settings
   onDemandEntries: {
@@ -71,7 +71,7 @@ const nextConfig: NextConfig = {
   },
   
   // Webpack optimizations
-  webpack: (config, { dev, isServer, webpack: webpackInstance }) => {
+  webpack: (config, { dev, isServer }) => {
     // Optimize bundle size
     config.optimization = {
       ...config.optimization,
@@ -81,12 +81,6 @@ const nextConfig: NextConfig = {
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
-            chunks: 'all',
-            priority: 10,
-          },
-          three: {
-            test: /[\\/]node_modules[\\/](three|@react-three)[\\/]/,
-            name: 'three',
             chunks: 'all',
             priority: 10,
           },
@@ -120,6 +114,13 @@ const nextConfig: NextConfig = {
             name: 'react',
             chunks: 'all',
             priority: 20,
+          },
+          // Additional cache groups for better optimization
+          zod: {
+            test: /[\\/]node_modules[\\/](zod)[\\/]/,
+            name: 'zod',
+            chunks: 'all',
+            priority: 15,
           },
         },
       },
@@ -172,15 +173,6 @@ const nextConfig: NextConfig = {
         })
       );
     }
-    
-    // Add webpack plugins for optimization
-    config.plugins.push(
-      new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /en/),
-      new webpack.IgnorePlugin({
-        resourceRegExp: /^\.\/locale$/,
-        contextRegExp: /moment$/,
-      })
-    );
     
     return config;
   },
@@ -235,7 +227,6 @@ const nextConfig: NextConfig = {
   
   // Performance optimizations
   reactStrictMode: false, // Disable in production for better performance
-  swcMinify: true,
   
   // Additional performance optimizations
   compiler: {

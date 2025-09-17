@@ -1,13 +1,16 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Activity, Zap, TrendingUp, Monitor } from "lucide-react";
-import SystemStatus from "./SystemStatus";
-import ButtonTester from "./ButtonTester";
-import PerformanceReport from "./PerformanceReport";
-import OptimizationStatus from "./OptimizationStatus";
-import PerformanceSummary from "./PerformanceSummary";
-import CacheWarmer from "./CacheWarmer";
-import PerformanceMonitor from "./PerformanceMonitor";
+import dynamic from "next/dynamic";
+
+// Dynamically import heavy components
+const SystemStatus = dynamic(() => import("./SystemStatus"), { ssr: false });
+const ButtonTester = dynamic(() => import("./ButtonTester"), { ssr: false });
+const PerformanceReport = dynamic(() => import("./PerformanceReport"), { ssr: false });
+const OptimizationStatus = dynamic(() => import("./OptimizationStatus"), { ssr: false });
+const PerformanceSummary = dynamic(() => import("./PerformanceSummary"), { ssr: false });
+const CacheWarmer = dynamic(() => import("./CacheWarmer"), { ssr: false });
+const PerformanceMonitor = dynamic(() => import("./PerformanceMonitor"), { ssr: false });
 
 interface PerformanceDashboardModalProps {
   isOpen: boolean;

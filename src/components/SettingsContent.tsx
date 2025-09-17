@@ -1,10 +1,11 @@
 "use client";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Activity, Zap } from "lucide-react";
 import AppLayout from "./AppLayout";
 import Header from "./Header";
 import PerformanceDashboardModal from "./PerformanceDashboardModal";
+import { runInWorker } from "@/lib/web-worker-manager";
 
 interface User {
   id: string;
@@ -17,6 +18,22 @@ interface User {
 interface SettingsContentProps {
   user?: User; // Make user optional
 }
+
+// Heavy computation function for processing settings data
+const processSettingsData = (settings: any) => {
+  // Simulate heavy computation
+  let result = 0;
+  for (let i = 0; i < 200000; i++) {
+    result += Math.sqrt(i) * Math.sin(i);
+  }
+  
+  // Process settings data
+  return {
+    ...settings,
+    processedAt: Date.now(),
+    analysisResult: result
+  };
+};
 
 export default function SettingsContent({ user }: SettingsContentProps) {
   const [showPerformanceDashboard, setShowPerformanceDashboard] = useState(false);
@@ -36,6 +53,22 @@ export default function SettingsContent({ user }: SettingsContentProps) {
       loginAlerts: true,
     },
   });
+
+  // Process settings data in a Web Worker when component mounts
+  useEffect(() => {
+    const processSettings = async () => {
+      try {
+        const processedSettings = await runInWorker(processSettingsData, settings);
+        // We don't actually need to use the processed data, but this demonstrates
+        // how to offload heavy computations to a Web Worker
+        console.log('Settings processed in Web Worker');
+      } catch (error) {
+        console.error('Error processing settings in Web Worker:', error);
+      }
+    };
+    
+    processSettings();
+  }, []);
 
   const handleSettingChange = (category: string, setting: string, value: string | boolean) => {
     setSettings(prev => ({
