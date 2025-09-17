@@ -89,7 +89,6 @@ npx prisma studio
 
 ### **User Management**
 - `User` - Main user accounts
-- `Account` - OAuth accounts (Google, Facebook)
 - `Session` - User sessions
 
 ### **Hisab Calculator Features**
@@ -145,7 +144,6 @@ Add these in Vercel dashboard:
 - `DATABASE_URL`
 - `NEXTAUTH_URL` (your domain)
 - `NEXTAUTH_SECRET`
-- OAuth provider credentials
 
 ### Database Connection Pooling
 For production, consider:

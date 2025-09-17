@@ -45,7 +45,7 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
       try {
         console.log('Attempting signup...', { name, username, email });
         const apiUrl = process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:3000/api/signup' // Updated to match current port
+          ? 'http://localhost:3010/api/signup' // Updated to match current port
           : '/api/signup';
         
         const res = await fetch(apiUrl, {
@@ -118,10 +118,6 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
         setError(`Login failed: ${errorMessage}`);
       }
     });
-  };
-
-  const handleSocialLogin = (provider: string) => {
-    signIn(provider, { callbackUrl: "/dashboard" });
   };
 
   // Handle escape key press
@@ -331,42 +327,6 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
               ) : mode === "login" ? "Log in" : "Sign up"}
             </button>
           </form>
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/20" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-black text-gray-400">
-                  Or continue with
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <button
-                onClick={() => handleSocialLogin("google")}
-                className="w-full py-3 px-4 border border-white/20 rounded-xl bg-white/10 text-sm font-medium text-gray-300 hover:bg-white/20 hover:text-white transition-all hover:scale-105 transform flex items-center justify-center gap-2"
-                disabled={isPending}
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/>
-                </svg>
-                Google
-              </button>
-              <button
-                onClick={() => handleSocialLogin("facebook")}
-                className="w-full py-3 px-4 border border-white/20 rounded-xl bg-white/10 text-sm font-medium text-gray-300 hover:bg-white/20 hover:text-white transition-all hover:scale-105 transform flex items-center justify-center gap-2"
-                disabled={isPending}
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
-                Facebook
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

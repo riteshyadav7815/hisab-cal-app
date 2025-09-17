@@ -141,38 +141,6 @@ export default function AuthCard() {
                   : "Already have an account? Log In"}
               </button>
             </div>
-
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-600" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-black text-gray-400">
-                    Or continue with
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <div>
-                  <button
-                    onClick={() => signIn("google")}
-                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-600 rounded-xl shadow-sm bg-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-700"
-                  >
-                    Google
-                  </button>
-                </div>
-                <div>
-                  <button
-                    onClick={() => signIn("facebook")}
-                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-600 rounded-xl shadow-sm bg-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-700"
-                  >
-                    Facebook
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
         </motion.div>
       </AnimatePresence>

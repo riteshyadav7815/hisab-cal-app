@@ -3,8 +3,6 @@
 ## 📋 Prerequisites
 - Node.js 18+ 
 - PostgreSQL database
-- Google OAuth credentials (optional)
-- Facebook OAuth credentials (optional)
 
 ## 🗄️ Database Setup
 
@@ -29,12 +27,6 @@ DATABASE_URL="postgresql://username:password@localhost:5432/hisab_auth_db"
 # NextAuth.js
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-secret-key-here"
-
-# OAuth Providers (Optional)
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-FACEBOOK_CLIENT_ID="your-facebook-client-id"
-FACEBOOK_CLIENT_SECRET="your-facebook-client-secret"
 ```
 
 ## 🚀 Quick Start
@@ -69,26 +61,10 @@ FACEBOOK_CLIENT_SECRET="your-facebook-client-secret"
 - **Railway** (full-stack)
 - **Render** (full-stack)
 
-## 🔐 OAuth Setup
-
-### Google OAuth
-1. Go to [Google Cloud Console](https://console.cloud.google.com)
-2. Create new project
-3. Enable Google+ API
-4. Create OAuth 2.0 credentials
-5. Add authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
-
-### Facebook OAuth
-1. Go to [Facebook Developers](https://developers.facebook.com)
-2. Create new app
-3. Add Facebook Login product
-4. Add authorized redirect URI: `http://localhost:3000/api/auth/callback/facebook`
-
 ## 🎨 Features
 - ✨ 3D animated background with Three.js
 - 🖤 Black glassmorphism design
 - 👤 Username-based authentication
-- 🔐 Social login (Google, Facebook)
 - ⚡ Lightning-fast Next.js 14
 - 🎭 Smooth Framer Motion animations
 - 📱 Fully responsive design

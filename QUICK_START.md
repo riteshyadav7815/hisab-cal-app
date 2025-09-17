@@ -105,6 +105,5 @@ npm run db:generate
 ## 🌐 Next Steps
 
 1. **Deploy to Vercel** (free)
-2. **Add OAuth providers** (Google, Facebook)
-3. **Customize the app** for your needs
-4. **Add real data** instead of sample data
+2. **Customize the app** for your needs
+3. **Add real data** instead of sample data
