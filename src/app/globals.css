@@ -60,6 +60,20 @@ html {
     margin: 1rem;
     max-height: 90vh;
   }
+  
+  /* Improve tab navigation on mobile */
+  .tab-container {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .tab-button {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
 }
 
 /* Maintain consistent padding and margins */
