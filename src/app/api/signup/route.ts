@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/server/db";
 import bcrypt from "bcrypt";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 
 const schema = z.object({
   name: z.string().min(1),
@@ -37,7 +37,12 @@ export async function POST(request: Request) {
     console.log('User created successfully:', user);
     return NextResponse.json({ user });
   } catch (error) {
+    if (error instanceof ZodError) {
+      console.error('Validation error:', error.errors);
+      const errorMessage = error.errors.map(e => e.message).join(', ');
+      return NextResponse.json({ error: errorMessage }, { status: 400 });
+    }
     console.error('Signup error:', error);
-    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 }

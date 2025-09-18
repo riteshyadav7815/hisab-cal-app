@@ -55,9 +55,10 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
         });
         
         if (!res.ok) {
-          const errorText = await res.text();
-          console.error('Signup failed:', { status: res.status, error: errorText });
-          throw new Error(`HTTP ${res.status}: ${errorText}`);
+          const errorData = await res.json();
+          const errorMessage = errorData.error || 'An unknown error occurred';
+          console.error('Signup failed:', { status: res.status, error: errorMessage });
+          throw new Error(errorMessage);
         }
         
         const data = await res.json();
