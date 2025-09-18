@@ -61,18 +61,68 @@ html {
     max-height: 90vh;
   }
   
-  /* Improve tab navigation on mobile */
-  .tab-container {
+  /* Improve tab navigation on mobile - WRAPPING APPROACH */
+  .tab-container-wrap {
     display: flex;
-    gap: 0.5rem;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-    -webkit-overflow-scrolling: touch;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   
-  .tab-button {
-    flex-shrink: 0;
+  .tab-button-wrap {
+    flex: 1 1 auto;
+    min-width: 100px;
+  }
+  
+  /* Improve tab navigation on mobile - SCROLLING APPROACH */
+  .tab-container-scroll {
+    display: flex;
+    overflow-x: auto;
     white-space: nowrap;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    /* Ensure proper spacing and prevent overlap */
+    gap: 8px;
+    padding: 4px;
+    /* Add some padding to ensure tabs don't touch edges */
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  
+  .tab-container-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .tab-button-scroll {
+    flex: 0 0 auto;
+    margin-right: 0; /* Use gap instead of margin for consistent spacing */
+    min-width: 120px; /* Ensure tabs are wide enough to be tappable */
+    text-align: center;
+  }
+  
+  /* Stacked approach for very small screens */
+  .tab-container-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  /* Additional improvements for very small screens */
+  @media (max-width: 480px) {
+    .tab-container-scroll {
+      gap: 4px;
+      padding: 2px;
+    }
+    
+    .tab-button-scroll {
+      min-width: 100px;
+      font-size: 0.875rem; /* 14px */
+      padding-left: 0.5rem; /* 8px */
+      padding-right: 0.5rem; /* 8px */
+    }
+    
+    .tab-button-scroll svg {
+      display: none; /* Hide icons on very small screens to save space */
+    }
   }
 }
 

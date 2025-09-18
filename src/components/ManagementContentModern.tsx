@@ -313,10 +313,10 @@ export default function ManagementContentModern({ user }: ManagementContentModer
 
           {/* Tab Navigation */}
           <div className="bg-[#2B2746]/60 backdrop-blur-xl rounded-2xl p-4 border border-white/20">
-            <div className="tab-container scrollbar-hide">
+            <div className="tab-container-scroll">
               <button
                 onClick={() => setActiveTab('friends')}
-                className={`px-4 py-2 rounded-lg transition-all duration-200 tab-button ${
+                className={`px-4 py-2 rounded-lg transition-all duration-200 tab-button-scroll whitespace-nowrap ${
                   activeTab === 'friends'
                     ? 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white'
                     : 'text-gray-400 hover:text-white'
@@ -327,7 +327,7 @@ export default function ManagementContentModern({ user }: ManagementContentModer
               </button>
               <button
                 onClick={() => setActiveTab('transactions')}
-                className={`px-4 py-2 rounded-lg transition-all duration-200 tab-button ${
+                className={`px-4 py-2 rounded-lg transition-all duration-200 tab-button-scroll whitespace-nowrap ${
                   activeTab === 'transactions'
                     ? 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white'
                     : 'text-gray-400 hover:text-white'
@@ -338,7 +338,7 @@ export default function ManagementContentModern({ user }: ManagementContentModer
               </button>
               <button
                 onClick={() => setActiveTab('categories')}
-                className={`px-4 py-2 rounded-lg transition-all duration-200 tab-button ${
+                className={`px-4 py-2 rounded-lg transition-all duration-200 tab-button-scroll whitespace-nowrap ${
                   activeTab === 'categories'
                     ? 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white'
                     : 'text-gray-400 hover:text-white'
@@ -349,7 +349,7 @@ export default function ManagementContentModern({ user }: ManagementContentModer
               </button>
               <button
                 onClick={() => setActiveTab('preferences')}
-                className={`px-4 py-2 rounded-lg transition-all duration-200 tab-button ${
+                className={`px-4 py-2 rounded-lg transition-all duration-200 tab-button-scroll whitespace-nowrap ${
                   activeTab === 'preferences'
                     ? 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white'
                     : 'text-gray-400 hover:text-white'
@@ -360,7 +360,7 @@ export default function ManagementContentModern({ user }: ManagementContentModer
               </button>
               <button
                 onClick={() => setActiveTab('security')}
-                className={`px-4 py-2 rounded-lg transition-all duration-200 tab-button ${
+                className={`px-4 py-2 rounded-lg transition-all duration-200 tab-button-scroll whitespace-nowrap ${
                   activeTab === 'security'
                     ? 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white'
                     : 'text-gray-400 hover:text-white'
