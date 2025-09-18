@@ -44,9 +44,7 @@ export default function LoginModal({ isOpen, onClose, allowClose = true }: Login
     startTransition(async () => {
       try {
         console.log('Attempting signup...', { name, username, email });
-        const apiUrl = process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:3010/api/signup' // Updated to match current port
-          : '/api/signup';
+        const apiUrl = '/api/signup';
         
         const res = await fetch(apiUrl, {
           method: "POST",

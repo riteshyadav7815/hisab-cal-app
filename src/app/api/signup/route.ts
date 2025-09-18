@@ -10,39 +10,91 @@ const schema = z.object({
   password: z.string().min(6),
 });
 
+// Handle preflight OPTIONS requests for CORS
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
+}
+
 export async function POST(request: Request) {
   try {
     console.log('Signup API called');
     const body = await request.json();
     console.log('Request body:', { ...body, password: '[REDACTED]' });
     
-    const { name, username, email, password } = schema.parse(body);
+    // Validate the request body
+    const parsedData = schema.safeParse(body);
+    if (!parsedData.success) {
+      console.error('Validation error:', parsedData.error.errors);
+      const errorMessage = parsedData.error.errors.map(e => e.message).join(', ');
+      return NextResponse.json({ error: `Validation failed: ${errorMessage}` }, { 
+        status: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        }
+      });
+    }
+    
+    const { name, username, email, password } = parsedData.data;
 
     const existing = await db.user.findFirst({ where: { OR: [{ email }, { username }] } });
     if (existing) {
       console.log('User already exists:', existing.email || existing.username);
-      return NextResponse.json({ error: "User already exists" }, { status: 400 });
+      return NextResponse.json({ error: "User already exists" }, { 
+        status: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        }
+      });
     }
 
     const hashed = await bcrypt.hash(password, 10);
-    // Use raw query to create user and get the userNumber
-    const users: any[] = await db.$queryRaw`
-      INSERT INTO users (id, name, username, email, password, "createdAt", "updatedAt")
-      VALUES (${crypto.randomUUID()}, ${name}, ${username}, ${email}, ${hashed}, NOW(), NOW())
-      RETURNING id, email, name, username, "userNumber";
-    `;
-    
-    const user = users[0];
+    // Use Prisma client to create user
+    const user = await db.user.create({
+      data: {
+        name,
+        username,
+        email,
+        password: hashed,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        userNumber: true,
+      },
+    });
 
     console.log('User created successfully:', user);
-    return NextResponse.json({ user });
+    return NextResponse.json({ user }, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      }
+    });
   } catch (error) {
-    if (error instanceof ZodError) {
-      console.error('Validation error:', error.errors);
-      const errorMessage = error.errors.map(e => e.message).join(', ');
-      return NextResponse.json({ error: errorMessage }, { status: 400 });
-    }
     console.error('Signup error:', error);
-    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
+    // Return more detailed error information
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+    return NextResponse.json({ error: `Signup failed: ${errorMessage}` }, { 
+      status: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      }
+    });
   }
 }

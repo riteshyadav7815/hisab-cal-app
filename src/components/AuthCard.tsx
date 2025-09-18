@@ -17,13 +17,57 @@ export default function AuthCard() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     startTransition(async () => {
-      const res = await fetch("/api/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, username, email, password }),
-      });
-      if (res.ok) {
-        setMode("login");
+      try {
+        console.log('Attempting signup with data:', { name, username, email: '[REDACTED]', password: '[REDACTED]' });
+        
+        // Log the full URL we're trying to fetch
+        const url = `/api/signup`;
+        console.log('Fetching URL:', url);
+        
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, username, email, password }),
+        });
+        
+        console.log('Signup response status:', res.status);
+        console.log('Signup response headers:', [...res.headers.entries()]);
+        
+        if (res.ok) {
+          console.log('Signup successful');
+          const data = await res.json();
+          console.log('Signup response data:', data);
+          setMode("login");
+        } else {
+          const errorText = await res.text();
+          console.log('Signup error response:', errorText);
+          
+          try {
+            const data = JSON.parse(errorText);
+            alert(`Signup failed: ${data.error || 'Unknown error'} (Status: ${res.status})`);
+          } catch (parseError) {
+            alert(`Signup failed: Server returned status ${res.status} with message: ${errorText}`);
+          }
+        }
+      } catch (error) {
+        console.error('Signup network error:', error);
+        if (error instanceof Error) {
+          console.error('Error name:', error.name);
+          console.error('Error message:', error.message);
+          console.error('Error stack:', error.stack);
+        }
+        
+        if (error instanceof TypeError) {
+          if (error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
+            // This is typically a CORS or network connectivity issue
+            alert(`Signup failed: Network error - Unable to connect to server. This could be due to CORS restrictions or network connectivity issues. Please check your internet connection and try again.`);
+            console.error('Possible CORS or network issue. Make sure the API endpoint is accessible and CORS is properly configured.');
+          } else {
+            alert(`Signup failed: ${error.message}`);
+          }
+        } else {
+          alert(`Signup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
       }
     });
   };
