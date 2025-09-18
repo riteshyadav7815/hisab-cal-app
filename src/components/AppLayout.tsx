@@ -47,7 +47,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           // Mobile Layout (< md)
           <div className="min-h-screen bg-background text-foreground flex flex-col">
             {/* Main Content - Full width on mobile */}
-            <div className="flex-1 pb-20">
+            <div className="flex-1 pb-safe">
               {children}
             </div>
 

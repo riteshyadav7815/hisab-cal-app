@@ -227,7 +227,7 @@ export default function ManagementModal({ isOpen, onClose }: ManagementModalProp
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                  className={`flex flex-shrink-0 items-center space-x-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white'
                       : 'text-gray-400 hover:text-white'

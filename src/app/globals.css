@@ -3,6 +3,11 @@
 :root {
   --background: #1A1625; /* Dark purple background */
   --foreground: #E0E0E0; /* Light gray text */
+  --bottom-nav-height: 72px; /* Set to actual height of your nav */
+}
+
+.pb-safe {
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
 }
 
 /* Force dark theme on all devices */
